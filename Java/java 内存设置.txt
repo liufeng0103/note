@@ -1,0 +1,14 @@
+-Xms 
+初始Heap大小
+
+-Xmx 
+java heap最大值 
+
+-Xmn 
+young generation的heap大小
+
+-Xss 
+每个线程的Stack大小
+
+1．Server端JVM最好将-Xms和-Xmx设为相同值。为了优化GC，最好让-Xmn值约等于-Xmx的1/3。
+2．一个GUI程序最好是每10到20秒间运行一次GC，每次在半秒之内完成。

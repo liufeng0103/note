@@ -1,0 +1,31 @@
+Linux iptables防火墙
+
+查看现有配置
+iptables -L -n
+	-L(list)	List the rules in a chain or all chains
+	-n(numeric)	numeric(数字的) output of addresses and ports
+	
+添加特点端口到允许列表(安装系统是自带了iptables，有一些默认规则，所以用-A添加到后面会无效)
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT	//-A是添加到配置文件后面
+
+iptables -I INPUT -p tcp --dport 80 -j ACCEPT	//-I添加到配置文件前面
+
+
+删除规则
+iptables -D INPUT 2
+
+清除已有iptables规则
+iptables -F
+iptables -X
+iptables -Z
+
+保存配置 
+/etc/rc.d/init.d/iptables save
+
+配置文件
+/etc/sysconfig/iptables
+
+
+重启防火墙服务
+service iptables restart
+

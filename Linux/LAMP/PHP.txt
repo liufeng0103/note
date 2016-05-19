@@ -1,0 +1,91 @@
+1. 基本的php语法
+<!DOCTYPE html>
+<html>
+<body>
+
+<?php
+// 单行注释
+# 这也是单行注释
+/*
+多行注释
+*/
+echo "echo Hello World!<br>";
+// PHP 不是大小写敏感的
+ECHO "ECHO Hello World!<br>";
+
+// 变量是大小写敏感的
+$color="red";
+echo "My car is " . $color . 	"<br>";
+
+$g = 10;
+function myTest()
+{
+$x = 5;
+echo "Variable x is: $x<br>";
+
+// global关键字在function内使用全局变量
+global $g;
+// php存储所有全局变量在一个$GLOBALS[index]的数组里
+echo $GLOBALS['G'];
+
+// 静态变量
+static $z = 0;
+
+// 显示字符串
+echo "This"," is a string<br>";
+
+// 显示变量
+$cars=array("Volvo","BMW","Toyota");
+echo "My car is a {$cars[0]}<br>";
+
+// print与echo功能类似
+print "My another car is {$cars[1]}<br>";
+
+// var_dump()返回变量的数据类型
+var_dump($x);
+}
+myTest();
+
+// php对象
+class Car
+{
+  var $color;
+  function Car($color="green")
+  {
+    $this->color = $color;
+  }
+  function what_color()
+  {
+    return $this->color;
+  }
+}
+
+// php NULL 值
+$test=null;
+var_dump($x);
+?>
+
+</body>
+</html>
+
+字符串长度
+strlen("hello world")
+在字符串中查找指定子字符,如果找到放回子字符串位置，找不到返回FALSE
+strpos("hello world","world")
+
+php的全局变量
+$GLOBALS
+$_SERVER
+$_REQUEST
+$_POST
+$_GET
+$_FILES
+$_ENV
+$_COOKIE
+$_SESSION
+
+转义特殊字符
+htmlspecialchars($data)
+
+连接mysql
+mysqli_connect(host,username,password,dbname);

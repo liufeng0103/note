@@ -1,0 +1,533 @@
+Linux shell命令
+
+『ls -l --full-time』就能够显示出完整的时间格式了！包括年、月、日、时间喔
+『ls -a』显示所有文档，包括隐藏文件
+ man ls 或 info ls 去看看他的基础用法去
+ 
+ 如何改变文件属性与权限
+chgrp ：改变文件所属群组
+chgrp 组名	文件或目录名
+chown ：改变文件拥有者
+chown的用途还满多的，他还可以顺便直接修改群组的名称呢！此外，如果要连目录下的所有次目录或文件同时更改文件拥有者的话，直接加上 -R
+chown 用户 文件
+chown 用户：组 文件
+chmod ：改变文件的权限, SUID, SGID, SBIT等等的特性
+r:4
+w:2
+x:1
+chmod 774
+u	user
+g	group	
+o	other
+a	all
+chmod u=rwx,go=rx 文件
+chmod a-x filename
+chmod a+x filename
+
+命令与文件补全功能： ([tab] 按键的好处)
+如果想要知道系统当中所有以 c 为开头的命令呢？就按下『 c[tab][tab] 』就好啦！ ^_^
+
+命令别名配置功能： (alias)
+alias lm='ls -al'
+
+Bash shell 的内建命令： type
+透过 type 这个命令我们可以知道每个命令是否为 bash 的内建命令
+
+变量的取用: echo
+
+变量的配置守则
+变量与变量内容以一个等号『=』来连结，如下所示： 
+『myname=VBird』
+
+等号两边不能直接接空格符，如下所示为错误： 
+『myname = VBird』或『myname=VBird Tsai』
+
+变量名称只能是英文字母与数字，但是开头字符不能是数字，如下为错误： 
+『2myname=VBird』
+
+变量内容若有空格符可使用双引号『"』或单引号『'』将变量内容结合起来，但
+双引号内的特殊字符如 $ 等，可以保有原本的特性，如下所示：
+『var="lang is $LANG"』则『echo $var』可得『lang is en_US』
+单引号内的特殊字符则仅为一般字符 (纯文本)，如下所示：
+『var='lang is $LANG'』则『echo $var』可得『lang is $LANG』
+
+可用跳脱字符『 \ 』将特殊符号(如 [Enter], $, \, 空格符, '等)变成一般字符；
+
+在一串命令中，还需要藉由其他的命令提供的信息，可以使用反单引号『`命令`』或 『$(命令)』。特别注意，那个 ` 是键盘上方的数字键 1 左边那个按键，而不是单引号！ 例如想要取得核心版本的配置：
+『version=$(uname -r)』再『echo $version』可得『2.6.18-128.el5』
+
+若该变量为扩增变量内容时，则可用 "$变量名称" 或 ${变量} 累加内容，如下所示：
+『PATH="$PATH":/home/bin』
+
+若该变量需要在其他子程序运行，则需要以 export 来使变量变成环境变量：
+『export PATH』
+
+通常大写字符为系统默认变量，自行配置变量可以使用小写字符，方便判断 (纯粹依照使用者兴趣与嗜好) ；
+
+取消变量的方法为使用 unset ：『unset 变量名称』例如取消 myname 的配置：
+『unset myname』
+
+用 env 观察环境变量与常见环境变量说明
+
+$：(关于本 shell 的 PID)
+钱字号本身也是个变量喔！这个咚咚代表的是『目前这个 Shell 的线程代号』，亦即是所谓的 PID (Process ID)
+?：(关于上个运行命令的回传值)
+当我们运行某些命令时， 这些命令都会回传一个运行后的代码。一般来说，如果成功的运行该命令， 则会回传一个 0 值，如果运行过程发生错误，就会回传『错误代码』才对
+
+OSTYPE, HOSTTYPE, MACHTYPE：(主机硬件与核心的等级)
+
+export 变量名称
+让该变量内容继续的在子程序中使用
+被 export 后的变量，我们可以称他为『环境变量』！ 环境变量可以被子程序所引用，但是其他的自定义变量内容就不会存在于子程序中
+
+ Linux 到底支持了多少的语系呢
+ 由 locale 这个命令来查询到喔
+ Linux 主机内保有的语系文件， 这些语系文件都放置在： /usr/lib/locale/ 这个目录中
+
+read
+要读取来自键盘输入的变量，就是用 read 这个命令了
+read [-pt] variable
+选项与参数：
+-p  ：后面可以接提示字符！
+-t  ：后面可以接等待的『秒数！』这个比较有趣～不会一直等待使用者啦！
+范例二：提示使用者 30 秒内输入自己的大名，将该输入字符串作为名为 named 的变量内容
+[root@www ~]# read -p "Please keyin your name: " -t 30 named
+Please keyin your name: VBird Tsai   <==注意看，会有提示字符喔！
+[root@www ~]# echo $named
+VBird Tsai        <==输入的数据又变成一个变量的内容了！
+
+declare / typeset
+declare 或 typeset 是一样的功能，就是在『宣告变量的类型』
+declare [-aixr] variable
+选项与参数：
+-a  ：将后面名为 variable 的变量定义成为数组 (array) 类型
+-i  ：将后面名为 variable 的变量定义成为整数数字 (integer) 类型
+-x  ：用法与 export 一样，就是将后面的 variable 变成环境变量；
+-r  ：将变量配置成为 readonly 类型，该变量不可被更改内容，也不能 unset
+范例一：让变量 sum 进行 100+300+50 的加总结果
+[root@www ~]# sum=100+300+50
+[root@www ~]# echo $sum
+100+300+50  <==咦！怎么没有帮我计算加总？因为这是文字型态的变量属性啊！
+[root@www ~]# declare -i sum=100+300+50
+[root@www ~]# echo $sum
+450 
+变量类型默认为『字符串』，所以若不指定变量类型，则 1+2 为一个『字符串』而不是『计算式』。 所以上述第一个运行的结果才会出现那个情况的；
+bash 环境中的数值运算，默认最多仅能到达整数形态，所以 1/3 结果是 0
+
+数组 (array) 变量类型
+配置上面提到的 var[1] ～ var[3] 的变量。
+[root@www ~]# var[1]="small min"
+[root@www ~]# var[2]="big min"
+[root@www ~]# var[3]="nice min"
+[root@www ~]# echo "${var[1]}, ${var[2]}, ${var[3]}"
+small min, big min, nice min
+
+与文件系统及程序的限制关系： ulimit
+[root@www ~]# ulimit [-SHacdfltu] [配额]
+选项与参数：
+-H  ：hard limit ，严格的配置，必定不能超过这个配置的数值；
+-S  ：soft limit ，警告的配置，可以超过这个配置值，但是若超过则有警告信息。
+      在配置上，通常 soft 会比 hard 小，举例来说，soft 可配置为 80 而 hard 
+      配置为 100，那么你可以使用到 90 (因为没有超过 100)，但介于 80~100 之间时，
+      系统会有警告信息通知你！
+-a  ：后面不接任何选项与参数，可列出所有的限制额度；
+-c  ：当某些程序发生错误时，系统可能会将该程序在内存中的信息写成文件(除错用)，
+      这种文件就被称为核心文件(core file)。此为限制每个核心文件的最大容量。
+-f  ：此 shell 可以创建的最大文件容量(一般可能配置为 2GB)单位为 Kbytes
+-d  ：程序可使用的最大断裂内存(segment)容量；
+-l  ：可用于锁定 (lock) 的内存量
+-t  ：可使用的最大 CPU 时间 (单位为秒)
+-u  ：单一用户可以使用的最大程序(process)数量。
+
+范例一：列出你目前身份(假设为root)的所有限制数据数值
+[root@www ~]# ulimit -a
+core file size          (blocks, -c) 0          <==只要是 0 就代表没限制
+data seg size           (kbytes, -d) unlimited
+scheduling priority             (-e) 0
+file size               (blocks, -f) unlimited  <==可创建的单一文件的大小
+pending signals                 (-i) 11774
+max locked memory       (kbytes, -l) 32
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024       <==同时可开启的文件数量
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+real-time priority              (-r) 0
+stack size              (kbytes, -s) 10240
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 11774
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
+
+范例二：限制用户仅能创建 10MBytes 以下的容量的文件
+[root@www ~]# ulimit -f 10240
+[root@www ~]# ulimit -a
+file size               (blocks, -f) 10240 <==最大量为10240Kbyes，相当10Mbytes
+[root@www ~]# dd if=/dev/zero of=123 bs=1M count=20
+File size limit exceeded <==尝试创建 20MB 的文件，结果失败了！
+
+变量内容的删除与取代
+${variable#/*kerberos/bin:}
+这是重点！代表『从变量内容的最前面开始向右删除』，且仅删除最短的那个
+# ：符合取代文字的『最短的』那一个；
+##：符合取代文字的『最长的』那一个
+
+接下来谈谈取代吧
+范例六：将 path 的变量内容内的 sbin 取代成大写 SBIN：
+[root@www ~]# echo ${path/sbin/SBIN}
+/usr/kerberos/SBIN:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:
+/usr/sbin:/usr/bin:/root/bin
+# 这个部分就容易理解的多了！关键词在于那两个斜线，两斜线中间的是旧字符串
+# 后面的是新字符串，所以结果就会出现如上述的特殊字体部分啰！
+[root@www ~]# echo ${path//sbin/SBIN}
+/usr/kerberos/SBIN:/usr/kerberos/bin:/usr/local/SBIN:/usr/local/bin:/SBIN:/bin:
+/usr/SBIN:/usr/bin:/root/bin
+# 如果是两条斜线，那么就变成所有符合的内容都会被取代喔！
+
+变量的测试与内容替换
+范例一：测试一下是否存在 username 这个变量，若不存在则给予 username 内容为 root
+[root@www ~]# echo $username
+           <==由于出现空白，所以 username 可能不存在，也可能是空字符串
+[root@www ~]# username=${username-root}
+[root@www ~]# echo $username
+root       <==因为 username 没有配置，所以主动给予名为 root 的内容。
+[root@www ~]# username="vbird tsai" <==主动配置 username 的内容
+[root@www ~]# username=${username-root}
+[root@www ~]# echo $username
+vbird tsai <==因为 username 已经配置了，所以使用旧有的配置而不以 root 取代
+范例二：若 username 未配置或为空字符串，则将 username 内容配置为 root
+[root@www ~]# username=""
+[root@www ~]# username=${username-root}
+[root@www ~]# echo $username
+      <==因为 username 被配置为空字符串了！所以当然还是保留为空字符串！
+[root@www ~]# username=${username:-root}
+[root@www ~]# echo $username
+root  <==加上『 : 』后若变量内容为空或者是未配置，都能够以后面的内容替换！
+
+命令别名配置： alias, unalias
+[root@www ~]# alias lm='ls -al | more'
+如果要取消命令别名的话，那么就使用 unalias 吧！例如要将刚刚的 lm 命令别名拿掉，就使用：
+[root@www ~]# unalias lm
+
+[root@www ~]# history [n]
+[root@www ~]# history [-c]
+[root@www ~]# history [-raw] histfiles
+选项与参数：
+n   ：数字，意思是『要列出最近的 n 笔命令行表』的意思！
+-c  ：将目前的 shell 中的所有 history 内容全部消除
+-a  ：将目前新增的 history 命令新增入 histfiles 中，若没有加 histfiles ，
+      则默认写入 ~/.bash_history
+-r  ：将 histfiles 的内容读到目前这个 shell 的 history 记忆中；
+-w  ：将目前的 history 记忆内容写入 histfiles 中！
+histoty可以利用相关的功能来帮我们运行命令呢
+[root@www ~]# !number
+[root@www ~]# !command
+[root@www ~]# !!
+选项与参数：
+number  ：运行第几笔命令的意思；
+command ：由最近的命令向前搜寻『命令串开头为 command』的那个命令，并运行；
+!!      ：就是运行上一个命令(相当于按↑按键后，按 Enter)
+
+[root@www ~]# history
+   66  man rm
+   67  alias
+   68  man history
+   69  history 
+[root@www ~]# !66  <==运行第 66 笔命令
+[root@www ~]# !!   <==运行上一个命令，本例中亦即 !66 
+[root@www ~]# !al  <==运行最近以 al 为开头的命令(上头列出的第 67 个)
+
+想要了解命令搜寻的顺序，其实透过 type -a ls 也可以查询的到啦！上述的顺序最好先了解喔！
+
+bash 的进站与欢迎信息： /etc/issue, /etc/motd
+issue 内的各代码意义
+\d	 本地端时间的日期；
+\l	 显示第几个终端机接口；
+\m	 显示硬件的等级 (i386/i486/i586/i686...)；
+\n	 显示主机的网络名称；
+\o	 显示 domain name；
+\r	 操作系统的版本 (相当于 uname -r)
+\t	 显示本地端时间的时间；
+\s 	操作系统的名称；
+\v	 操作系统的版本。
+当我们使用 telnet 连接到主机时，主机的登陆画面就会显示 /etc/issue.net 而不是 /etc/issue 呢
+
+您想要让使用者登陆后取得一些信息，例如您想要让大家都知道的信息， 那么可以将信息加入 /etc/motd 里面去
+
+login shell 其实只会读取这两个配置文件：
+/etc/profile：这是系统整体的配置，你最好不要修改这个文件；
+~/.bash_profile 或 ~/.bash_login 或 ~/.profile：属于使用者个人配置，你要改自己的数据，就写入这里！
+
+source ：读入环境配置文件的命令
+利用 source 或小数点 (.) 都可以将配置文件的内容读进来目前的 shell 环境中
+
+终端机的环境配置： stty, set
+[root@www ~]# stty [-a]
+选项与参数：
+-a  ：将目前所有的 stty 参数列出来；
+
+范例一：列出所有的按键与按键内容
+[root@www ~]# stty -a
+speed 38400 baud; rows 24; columns 80; line = 0;
+intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>; 
+eol2 = <undef>; swtch = <undef>; start = ^Q; stop = ^S; susp = ^Z;
+rprnt = ^R; werase = ^W; lnext = ^V; flush = ^O; min = 1; time = 0;
+....(以下省略)....
+eof   : End of file 的意思，代表『结束输入』。
+erase : 向后删除字符，
+intr  : 送出一个 interrupt (中断) 的讯号给目前正在 run 的程序；
+kill  : 删除在目前命令列上的所有文字；
+quit  : 送出一个 quit 的讯号给目前正在 run 的程序；
+start : 在某个程序停止后，重新启动他的 output
+stop  : 停止目前屏幕的输出；
+susp  : 送出一个 terminal stop 的讯号给正在 run 的程序
+如果你想要用 [ctrl]+h 来进行字符的删除，那么可以下达：
+[root@www ~]# stty erase ^h
+组合按键	运行结果
+Ctrl + C	终止目前的命令
+Ctrl + D	输入结束 (EOF)，例如邮件结束的时候；
+Ctrl + M	就是 Enter 啦！
+Ctrl + S	暂停屏幕的输出
+Ctrl + Q	恢复屏幕的输出
+Ctrl + U	在提示字符下，将整列命令删除
+Ctrl + Z	『暂停』目前的命令
+
+通配符与特殊符号
+符号	意义
+*		代表『 0 个到无穷多个』任意字符
+?		代表『一定有一个』任意字符
+[ ]		同样代表『一定有一个在括号内』的字符(非任意字符)。例如 [abcd] 代表『一定有一个字符， 可能是 a, b, c, d 这四个任何一个』
+[ - ]	若有减号在中括号内时，代表『在编码顺序内的所有字符』。例如 [0-9] 代表 0 到 9 之间的所有数字，因为数字的语系编码是连续的！
+[^ ]	若中括号内的第一个字符为指数符号 (^) ，那表示『反向选择』，例如 [^abc] 代表 一定有一个字符，只要是非 a, b, c 的其他字符就接受的意思。
+
+符号	内容
+#		批注符号：这个最常被使用在 script 当中，视为说明！在后的数据均不运行
+\		跳脱符号：将『特殊字符或通配符』还原成一般字符
+|		管线 (pipe)：分隔两个管线命令的界定(后两节介绍)；
+;		连续命令下达分隔符：连续性命令的界定 (注意！与管线命令并不相同)
+~		用户的家目录
+$		取用变量前导符：亦即是变量之前需要加的变量取代值
+&		工作控制 (job control)：将命令变成背景下工作
+!		逻辑运算意义上的『非』 not 的意思！
+/		目录符号：路径分隔的符号
+>, >>	数据流重导向：输出导向，分别是『取代』与『累加』
+<, <<	数据流重导向：输入导向 (这两个留待下节介绍)
+' '		单引号，不具有变量置换的功能
+" "		具有变量置换的功能！
+` `		两个『 ` 』中间为可以先运行的命令，亦可使用 $( )
+( )		在中间为子 shell 的起始与结束
+{ }		在中间为命令区块的组合！
+
+standard output 与 standard error output
+标准输入　　(stdin) ：代码为 0 ，使用 < 或 << ；
+标准输出　　(stdout)：代码为 1 ，使用 > 或 >> ；
+标准错误输出(stderr)：代码为 2 ，使用 2> 或 2>> ；
+1> ：以覆盖的方法将『正确的数据』输出到指定的文件或装置上；
+1>>：以累加的方法将『正确的数据』输出到指定的文件或装置上；
+2> ：以覆盖的方法将『错误的数据』输出到指定的文件或装置上；
+2>>：以累加的方法将『错误的数据』输出到指定的文件或装置上；
+范例三：承范例二，将 stdout 与 stderr 分存到不同的文件去
+[dmtsai@www ~]$ find /home -name .bashrc > list_right 2> list_error
+此时『屏幕上不会出现任何信息』！因为刚刚运行的结果中，有 Permission 的那几行错误信息都会跑到 list_error 这个文件中，至于正确的输出数据则会存到 list_right 这个文件中啰
+
+/dev/null 垃圾桶黑洞装置与特殊写法
+如果我要将正确与错误数据通通写入同一个文件去呢？这个时候就得要使用特殊的写法了
+范例五：将命令的数据全部写入名为 list 的文件中
+[dmtsai@www ~]$ find /home -name .bashrc > list 2> list  <==错误
+[dmtsai@www ~]$ find /home -name .bashrc > list 2>&1     <==正确
+[dmtsai@www ~]$ find /home -name .bashrc &> list         <==正确
+
+standard input ： < 与 <<
+范例六：利用 cat 命令来创建一个文件的简单流程
+[root@www ~]# cat > catfile
+testing
+cat file test
+<==这里按下 [ctrl]+d 来离开
+
+[root@www ~]# cat catfile
+testing
+cat file test
+范例七：用 stdin 取代键盘的输入以创建新文件的简单流程
+[root@www ~]# cat > catfile < ~/.bashrc
+[root@www ~]# ll catfile ~/.bashrc
+-rw-r--r-- 1 root root 194 Sep 26 13:36 /root/.bashrc
+-rw-r--r-- 1 root root 194 Feb  6 18:29 catfile
+# 注意看，这两个文件的大小会一模一样！几乎像是使用 cp 来复制一般！
+[root@www ~]# cat > catfile << "eof"
+> This is a test.
+> OK now stop
+> eof  <==输入这关键词，立刻就结束而不需要输入 [ctrl]+d
+
+[root@www ~]# cat catfile
+This is a test.
+OK now stop     <==只有这两行，不会存在关键词那一行！
+
+命令运行的判断依据： ; , &&, ||
+cmd ; cmd (不考虑命令相关性的连续命令下达)
+$? (命令回传值) 与 && 或 ||
+命令下达情况	说明
+cmd1 && cmd2	1. 若 cmd1 运行完毕且正确运行($?=0)，则开始运行 cmd2。
+				2. 若 cmd1 运行完毕且为错误 ($?≠0)，则 cmd2 不运行。
+cmd1 || cmd2	1. 若 cmd1 运行完毕且正确运行($?=0)，则 cmd2 不运行。
+				2. 若 cmd1 运行完毕且为错误 ($?≠0)，则开始运行 cmd2。
+				
+管线命令 (pipe)
+管线命令使用的是『 | 』这个界定符号
+这个命令必须要能够接受 standard input 的数据才行，这样的命令才可以是为『管线命令』，例如 less, more, head, tail 等都是可以接受 standard input 的管线命令啦
+管线命令仅会处理 standard output，对于 standard error output 会予以忽略
+管线命令必须要能够接受来自前一个命令的数据成为 standard input 继续处理才行
+
+撷取命令： cut, grep
+[root@www ~]# cut -d'分隔字符' -f fields <==用于有特定分隔字符
+[root@www ~]# cut -c 字符区间            <==用于排列整齐的信息
+选项与参数：
+-d  ：后面接分隔字符。与 -f 一起使用；
+-f  ：依据 -d 的分隔字符将一段信息分割成为数段，用 -f 取出第几段的意思；
+-c  ：以字符 (characters) 的单位取出固定字符区间；
+
+范例一：将 PATH 变量取出，我要找出第五个路径。
+[root@www ~]# echo $PATH
+/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/X11R6/bin:/usr/games:
+# 1 |    2   |  3  |    4    |       5      |     6        |    7
+
+[root@www ~]# echo $PATH | cut -d ':' -f 5
+# 如同上面的数字显示，我们是以『 : 』作为分隔，因此会出现 /usr/local/bin 
+# 那么如果想要列出第 3 与第 5 呢？，就是这样：
+[root@www ~]# echo $PATH | cut -d ':' -f 3,5
+
+范例二：将 export 输出的信息，取得第 12 字符以后的所有字符串
+[root@www ~]# export
+declare -x HISTSIZE="1000"
+declare -x INPUTRC="/etc/inputrc"
+declare -x KDEDIR="/usr"
+declare -x LANG="zh_TW.big5"
+.....(其他省略).....
+# 注意看，每个数据都是排列整齐的输出！如果我们不想要『 declare -x 』时，
+# 就得这么做：
+
+[root@www ~]# export | cut -c 12-
+HISTSIZE="1000"
+INPUTRC="/etc/inputrc"
+KDEDIR="/usr"
+LANG="zh_TW.big5"
+.....(其他省略).....
+# 知道怎么回事了吧？用 -c 可以处理比较具有格式的输出数据！
+# 我们还可以指定某个范围的值，例如第 12-20 的字符，就是 cut -c 12-20 等等！
+
+范例三：用 last 将显示的登陆者的信息中，仅留下用户大名
+[root@www ~]# last
+root   pts/1    192.168.201.101  Sat Feb  7 12:35   still logged in
+root   pts/1    192.168.201.101  Fri Feb  6 12:13 - 18:46  (06:33)
+root   pts/1    192.168.201.254  Thu Feb  5 22:37 - 23:53  (01:16)
+# last 可以输出『账号/终端机/来源/日期时间』的数据，并且是排列整齐的
+
+[root@www ~]# last | cut -d ' ' -f 1
+# 由输出的结果我们可以发现第一个空白分隔的字段代表账号，所以使用如上命令：
+# 但是因为 root   pts/1 之间空格有好几个，并非仅有一个，所以，如果要找出 
+# pts/1 其实不能以 cut -d ' ' -f 1,2 喔！输出的结果会不是我们想要的。
+
+grep
+[root@www ~]# grep [-acinv] [--color=auto] '搜寻字符串' filename
+选项与参数：
+-a ：将 binary 文件以 text 文件的方式搜寻数据
+-c ：计算找到 '搜寻字符串' 的次数
+-i ：忽略大小写的不同，所以大小写视为相同
+-n ：顺便输出行号
+-v ：反向选择，亦即显示出没有 '搜寻字符串' 内容的那一行！
+--color=auto ：可以将找到的关键词部分加上颜色的显示喔！
+
+范例一：将 last 当中，有出现 root 的那一行就取出来；
+[root@www ~]# last | grep 'root'
+
+范例二：与范例一相反，只要没有 root 的就取出！
+[root@www ~]# last | grep -v 'root'
+
+范例三：在 last 的输出信息中，只要有 root 就取出，并且仅取第一栏
+[root@www ~]# last | grep 'root' |cut -d ' ' -f1
+# 在取出 root 之后，利用上个命令 cut 的处理，就能够仅取得第一栏啰！
+
+范例四：取出 /etc/man.config 内含 MANPATH 的那几行
+[root@www ~]# grep --color=auto 'MANPATH' /etc/man.config
+....(前面省略)....
+MANPATH_MAP     /usr/X11R6/bin          /usr/X11R6/man
+MANPATH_MAP     /usr/bin/X11            /usr/X11R6/man
+MANPATH_MAP     /usr/bin/mh             /usr/share/man
+# 神奇的是，如果加上 --color=auto 的选项，找到的关键词部分会用特殊颜色显示喔！
+
+排序命令： sort, wc, uniq
+[root@www ~]# sort [-fbMnrtuk] [file or stdin]
+选项与参数：
+-f  ：忽略大小写的差异，例如 A 与 a 视为编码相同；
+-b  ：忽略最前面的空格符部分；
+-M  ：以月份的名字来排序，例如 JAN, DEC 等等的排序方法；
+-n  ：使用『纯数字』进行排序(默认是以文字型态来排序的)；
+-r  ：反向排序；
+-u  ：就是 uniq ，相同的数据中，仅出现一行代表；
+-t  ：分隔符，默认是用 [tab] 键来分隔；
+-k  ：以那个区间 (field) 来进行排序的意思
+
+范例一：个人账号都记录在 /etc/passwd 下，请将账号进行排序。
+[root@www ~]# cat /etc/passwd | sort
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+apache:x:48:48:Apache:/var/www:/sbin/nologin
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+# 鸟哥省略很多的输出～由上面的数据看起来， sort 是默认『以第一个』数据来排序，
+# 而且默认是以『文字』型态来排序的喔！所以由 a 开始排到最后啰！
+
+范例二：/etc/passwd 内容是以 : 来分隔的，我想以第三栏来排序，该如何？
+[root@www ~]# cat /etc/passwd | sort -t ':' -k 3
+root:x:0:0:root:/root:/bin/bash
+uucp:x:10:14:uucp:/var/spool/uucp:/sbin/nologin
+operator:x:11:0:operator:/root:/sbin/nologin
+bin:x:1:1:bin:/bin:/sbin/nologin
+games:x:12:100:games:/usr/games:/sbin/nologin
+# 看到特殊字体的输出部分了吧？怎么会这样排列啊？呵呵！没错啦～
+# 如果是以文字型态来排序的话，原本就会是这样，想要使用数字排序：
+# cat /etc/passwd | sort -t ':' -k 3 -n
+# 这样才行啊！用那个 -n 来告知 sort 以数字来排序啊！
+
+范例三：利用 last ，将输出的数据仅取账号，并加以排序
+[root@www ~]# last | cut -d ' ' -f1 | sort
+
+uniq
+[root@www ~]# uniq [-ic]
+选项与参数：
+-i  ：忽略大小写字符的不同；
+-c  ：进行计数
+
+wc
+[root@www ~]# wc [-lwm]
+选项与参数：
+-l  ：仅列出行；
+-w  ：仅列出多少字(英文单字)；
+-m  ：多少字符；
+范例一：那个 /etc/man.config 里面到底有多少相关字、行、字符数？
+[root@www ~]# cat /etc/man.config | wc 
+    141     722    4617
+# 输出的三个数字中，分别代表： 『行、字数、字符数』
+
+范例二：我知道使用 last 可以输出登陆者，但是 last 最后两行并非账号内容，
+        那么请问，我该如何以一行命令串取得这个月份登陆系统的总人次？
+[root@www ~]# last | grep [a-zA-Z] | grep -v 'wtmp' | wc -l 
+# 由于 last 会输出空白行与 wtmp 字样在最底下两行，因此，我利用
+# grep 取出非空白行，以及去除 wtmp 那一行，在计算行数，就能够了解啰！
+
+双向重导向： tee
+[root@www ~]# tee [-a] file
+选项与参数：
+-a  ：以累加 (append) 的方式，将数据加入 file 当中！
+
+[root@www ~]# last | tee last.list | cut -d " " -f1
+# 这个范例可以让我们将 last 的输出存一份到 last.list 文件中；
+
+[root@www ~]# ls -l /home | tee ~/homefile | more
+# 这个范例则是将 ls 的数据存一份到 ~/homefile ，同时屏幕也有输出信息！
+
+[root@www ~]# ls -l / | tee -a ~/homefile | more
+# 要注意！ tee 后接的文件会被覆盖，若加上 -a 这个选项则能将信息累加。
+
+tr 可以用来删除一段信息当中的文字，或者是进行文字信息的替换！
+[root@www ~]# tr [-ds] SET1 ...
+选项与参数：
+-d  ：删除信息当中的 SET1 这个字符串；
+-s  ：取代掉重复的字符！

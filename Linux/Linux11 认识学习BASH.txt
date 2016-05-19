@@ -1,0 +1,66 @@
+11 认识学习BASH
+
+1. 可以使用的shells
+/etc/shells 文件查看
+
+[luis@localhost ~]$ cat /etc/shells
+/bin/sh
+/bin/bash
+/sbin/nologin
+/bin/dash
+/bin/tcsh
+/bin/csh
+
+
+2. 不同用户使用什么shell
+/etc/passwd
+
+[luis@localhost etc]$ cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+。。。
+luis:x:500:500:Feng Liu:/home/luis:/bin/bash
+
+3. 使用过的指令保存在home目录下的.bash_history
+
+4. 命令别名
+alias lm='ls -al'
+
+5. 变量的取值与设定
+echo 取用变量 变量前要加上$
+echo $PATH
+echo ${HOME}
+echo $MAIL
+设定变量
+myname=luis 等号2边不能接空格
+"",''的使用
+『var="lang is $LANG"』则『echo $var』可得『lang is en_US』
+『var='lang is $LANG'』则『echo $var』可得『lang is $LANG』
+
+myname=$(指令) 来设置变量
+
+export PATH 是变量变成环境变量.
+
+取消变量unset myname
+
+uname -r 获得内核版本
+
+6. env查看环境变量
+
+RANDOM 随机数生成器
+/dev/random
+$RANDOM 生成介于0-32767的数
+
+生成0-9
+[root@www ~]# declare -i number=$RANDOM*10/32768 ; echo $number
+
+set观察所有变量
+
+$? 查看上一次指令是否执行正确，0为正确
+
+7. locale -a 系统支持的语言
+
+8. read 读取来自键盘的输入
+
+
+

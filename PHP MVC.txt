@@ -1,0 +1,76 @@
+PHP MVC
+
+一直做的是java相关的东西，最近跟同事一起做一个PHP的项目，总结下项目的MVC结构，便于自己以后需要的时候复习和使用。
+
+1. MVC
+MVC分别代表了model, view, controller, model用来表示数据， view用来显示， controller用来控制和实现业务逻辑相关。通过这种方式的分层，可以方便代码的组织和维护。
+
+2. 实现
+controller
+用一个controller.php文件来负责转发用户的请求，所有的请求都需要经过这个控制器，否则无法访问到页面。请求被转发到各个action，由action来负责业务逻辑的处理，和相关页面的跳转。
+model
+现在做的这个项目把数据都放在了各个action里面定义了，对于简单的项目这种方式可能更加的方便和快捷。不知道php的使用是否像java一样对于model有各种层，vo,po等等来的封装，大神请轻喷。
+view
+各个用来显示的php页面，由action来负责跳转
+
+3. 代码
+controller.php
+<?php
+// 这里可以导入一些全局的属性和方法
+
+/*
+controller的处理流程：
+1. 请求的格式
+controller.php?operate=user_login
+2. 获取operate参数的值user_login
+3. 解析参数， 对于第一个下划线前面的参数作为查找的目录和目录中action的名字
+后面的参数表示执行的操作，由action根据不同操作实现不同的逻辑
+*/
+if (isset($_REQUEST["operate"])) {
+	$action = $_REQUEST["operate"];
+}
+if (empty($action)) {
+  echo "empty action"; exit();
+}
+// 每个页面之前都有MVC_ACCESS的校验，如果为false，表示页面没有通过controller来访问将不予显示
+define("MVC_ACCESS", true);
+$curr_action = array();
+$action_tmp = explode("_", $action);
+if (count($action_tmp) > 1) {
+	$curr_action["obj"] = $curr_action["dir"] = $action_tmp[0];
+	$curr_action["op"] = substr($action, strpos($action, "_") + 1);	
+} else {
+	$curr_action["dir"] = "";
+	$curr_action["obj"] = $action_tmp[0];
+	$curr_action["op"] = $action_tmp[0];
+}
+
+// 转发到对应的action，在这之前可以做一些session和权限的校验
+include "{$curr_action["dir"]}/{$curr_action["obj"]}.action.php";	
+?>
+
+xxx.action.php
+<?php
+if (!defined('MVC_ACCESS')) {
+	//echo '该页面不允许单独访问'; 
+	exit;
+}	
+
+if ($curr_action["op"] == "login") { // user_login
+	include $curr_action["dir"]."/login.php";
+} else if ($curr_action["op"] == "login.do") { // user_login.do
+	// 用户登录处理
+} 
+?>
+
+login.php
+<?php 
+if (!defined('MVC_ACCESS')) {
+	exit;
+}	
+?>
+<!-- HTML代码 -->
+
+总结:
+主要总结写做的项目的MVC的结构和实现
+

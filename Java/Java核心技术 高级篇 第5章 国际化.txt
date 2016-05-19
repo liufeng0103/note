@@ -1,0 +1,57 @@
+﻿1. Locale
+
+2. 本地语言由小写的2个字母表示， 国家代码由2个大写字母表示
+语言代码
+Chinese	zh
+English en
+
+国家代码
+China CN
+Japan JP
+
+3. 启动时提供语言和地域
+java -Duser.language=de -Duser.region=CH
+
+4. 对数字， 货币， 百分比格式化
+NumberFormat.getNumberInstance();
+NumberFormat.getCurrencyInstance();
+NumberFormat.getPercentInstance();
+
+NumberFormat currFmt = NumberFormat.getCurrencyInstance();
+currFmt.format(1245.78);
+
+相反解析特定数字
+NumberFormat currFmt = NumberFormat.getCurrencyInstance();
+Number input = currFmt.parse(...);
+double x = input.doubleValue();
+
+5. 消息格式化
+MessageFormat用来格式化带变量的文本
+String msg = MessageFormat.format("On {2}, a {0} destroyed", "a", 99);
+
+6. 资源包
+统一的命名规则
+包名_语言_国家
+包名_语言
+加载1个包
+ResourceBundle currentResources = ResourceBundle.getBundle(bundleName, currentLocal);
+
+例子， 配置文件
+name=luis
+myproertyfile.properties
+myproertyfile_zh.properties
+
+ResourceBundle currentResources = ResourceBundle.getBundle("myproertyfile", currentLocal);
+Stirng name = currentResources.getString("name");
+
+
+msg=haha {0} you can see my {1} here
+Locale local = new Locale("zh");
+ResourceBundle bundle = ResourceBundle.getBundle("test", local);
+System.out.println(bundle.getString("msg"));
+System.out.println(MessageFormat.format(bundle.getString("msg"), "Luis", 2));
+
+
+
+
+

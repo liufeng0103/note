@@ -1,0 +1,15 @@
+rm -r test 删除非空目录
+
+su root 切换用户
+
+解压tar.bz2文件
+tar -vxjf php-5......tar.bz2
+
+解压zip文件
+unzip xx.zip
+
+如何解决putty登陆很慢才出现密码输入行
+http://blog.sina.com.cn/s/blog_7bfe70310101ae7c.html
+
+系统立刻重新启动
+shutdown -r now 

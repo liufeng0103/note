@@ -1,0 +1,297 @@
+﻿Java核心技术-基础知识 学习笔记4
+
+第4章 对象与类
+
+4.1.1 类
+类	是对象模板
+封装 程序仅能通过方法与数据交互
+
+4.1.2 对象
+对象的3个特性:
+行为
+状态
+标识
+
+4.1.4 类之间的关系
+常见关系：
+依赖 uses-a
+聚合 has-a
+继承 is-a
+
+表达类关系的UML符号
+继承
+接口继承
+依赖
+聚合
+关联
+直接关联
+
+4.2.2 GregorianCalendar日历类
+
+4.3 用户自定义类
+编写类的风格是方法在前面，属性在后面。这种风格有易于促使人们更加关注接口的概念，削减对实现的主要.
+
+一个源文件中，只能有一个公有类，可以有任意个非公有类
+
+通配符编译
+javac Employee*.java
+
+编译含有main的类，它将一起编译在这个类中用到的其他类
+
+建议属性标记为private
+
+4.3.4 从构造器开始
+构造器伴随着new操作符被调用
+
+this.xxx 这种风格可以将属性与局部变量区分开来
+
+4.3.6 封装的优点
+如果返回一个可变属性的拷贝，用clone
+对象克隆是指存放在另一个位置上的对象副本
+
+4.4 静态域与静态方法
+静态属性属于类，而不属于任何独立的对象
+
+4.4.2 静态常量
+静态变量用的比较少，但静态常量用的比较多
+
+本地方法不是用java实现的，可以绕过java语言的存取控制机制，比如System.setOut方法可以设置static final的out对象
+
+4.4.4 Factory方法
+NumberFormat类使用factory方法产生不通风格对象
+
+4.5 方法参数
+方法得到的是所有参数值得一个拷贝
+一个方法不能修改一个基本数据类型参数，而对象引用就不同了
+
+4.6.3 默认构造器
+类中有一个有参数的构造器，没有默认呢构造器， 那就只能实例化这个有参数的构造器
+
+4.6.6 调用另一个构造器
+在构造器中用this调用另一个构造器
+
+4.6.7 初始化块
+用静态的初始化快
+public class Hello{
+	static{
+		System.out.println("Hello, world");		
+		System.exit(0);
+	}	
+}
+
+Random类
+int nextInt(int n)
+返回一个0到n-1 的随机数
+
+4.6.8 对象析构与finalize方法
+finalize方法在垃圾回收器清除对象之前调用， 实际应用中很难知道这个方法什么时候才能调用
+System.runFinalizersOnExit(true)确保finalizer方法在java关闭前被调用，但是不安全，不推荐
+Runtime.addShutdownHook代替上面的方法
+资源在使用完后如果需要立刻关闭，人工管理，用类的dispose或close方法，一个类如果用了这样的方法，当对象不在被使用时一定要调用它
+
+4.7 包
+java.util.* 对代码大小没有任何负面影响，但如果明确导入类，给代码读者知道加载了哪些类
+*导入一个包，但不能使用java.*, java.*.*到如为java前缀的所有包
+
+如果2个包有同名类
+java.util.*
+java.sql.*
+都有Date类
+可以采用增加一个特定的import来解决
+java.util.*
+java.sql.*
+java.util.Date
+如果2个类都要使用，可以在每个类名前加上完整包名
+java.util.Date d = new java.util.Date();
+
+4.7.2 静态导入 java5开始
+import static java.lang.System.*;
+就可以使用System类的静态方法和属性了，而不必加前缀
+import static java.lang.System.out；
+导入静态属性
+
+静态导入2个实际应用
+1. 对算术函数Math使用静态导入，就可以采用更加自然的方式使用算术函数了
+2. 如果要使用大量带有冗长名字的常量，应该使用静态导入
+
+4.7.4 包作用域
+public
+private
+未指定	同一包下可以访问
+protected	同一包以及子类可以访问
+
+4.8 类路径
+查看javac和虚拟机如何查找类文件路径
+JAR文件使用zip格式阻止文件和子目录
+
+由于运行库文件(rt.jar和在jre/lib与jre/lib/ext目录下的一些其他JAR文件)会被自动地搜索，所以不必将他们显式的列在类路径中
+
+javac编译器总在当前目录中查找文件，但java虚拟机仅在类路径中有“”目录的时候才查看当前目录。如果没有类路径，默认为.目录。如果设置了类路径忘了包含.。程序可以编译但不能运行
+
+设置类路径
+最好采用-classpath(或-cp)选项来指定类路径
+java -classpath /home/usr/classdir:.:/home/usr/archives/archive.jar MyProg.java
+或
+java - classpath c:\classdir;.;c:\archives\archive.jar MyProg.java
+也可以通过设置CLASSPATH环境变量完成这个操作
+export CLSSSPATH=/home/usr/classdir:.:/home/usr/archives/archive.jar
+C shell
+setenv CLSSSPATH=/home/usr/classdir:.:/home/usr/archives/archive.jar
+Windows
+set CLASSPAT=c:\classdir;.;c:\archives\archive.jar
+直到shell退出为止，类路径设置均有效
+
+设置永久CLASSPATH和把类放在jre/lib/ext路径都不是好方法
+
+4.9 文档注释
+/**	注释生成文档
+*/
+4.9.1 注释的插入
+javadoc程序从下面几个特性中抽取信息
+包
+公有类与接口
+公有的和受保护的方法
+公有的和受保护的属性
+
+每个/**... */文档注释后面紧跟自由格式文本，标记有@开始如@author或@param
+第一件应该是概要性的句子
+可以使用html修饰符
+强调<em>..</em>,
+设置等宽“打字机”字体的<code>...</code>
+着重强调的<strong>...</strong>
+包含图像的<img..>等
+不要使用<h1><hr>,它会与文档格式发生冲突
+
+文档中有其他文件链接，吧文件放在doc-files中<img src="doc-files/uml.png" alt="UML diagram">
+
+@deprecated text
+类方法不在使用的注释。text给出取代建议
+
+@see和@link可以使用超级链接
+
+4.9.7 注释的抽取
+包
+javadoc -d docDirectory nameofpackage
+多个包
+javadoc -d docDirectory nameofpackage1 nameofpackage2
+文件在默认包
+javadoc -d docDirectory *.java
+
+4.10类设计技巧
+a. 一定将数据设计为私有的
+b. 一定要对数据初始化
+c. 不要在类中使用过多的基本数据类型
+d. 不是所有的属性都需要独立的访问器和更改器
+e. 使用标准格式进行类的定义
+公有访问特性部分
+包作用部分
+私有部分
+每一个部分按下列顺序列出
+实例方法
+静态方法
+属性
+静态属性
+不一定要采用这种风格，关键是保持风格一致
+f. 将职责过多的类进行分解
+g. 类名和方法吗要能够体现他们的职责
+命名类名良好的习惯是采用一个名称(Order),前面有形容词修饰的名词(RushOrder)，或动名词修饰名词(BillingAddress)
+
+面向对象编程
+1. 设计类
+2. 往类里添加方法
+设计过程中，找名词对应类，动词对应方法
+
+类之间关系
+依赖
+	如果一个类的方法操作另一个类的对象，我们就说这个类依赖于另一个类
+	尽量将相互依赖的类减至最少，降低耦合度
+聚合
+	类A对象包含类B对象
+继承
+UML符号 page103
+
+Date类用来表示时间点
+GregorianCalendar类用来表示日历
+
+每个方法有个隐式对象，出现在方法名前的类对象，关键字this表示隐式对象
+
+不要编写返回引用可变对象的访问器方法，如
+public Date getHireDay(){ return hireDay;}
+如果需要返回一个可变对象的引用，应该首先对它进行克隆
+public Date getHireDay(){ return (Date)hireDay.clone();}
+
+一个方法可以访问所属类的对象的私有数据
+boolean equals(Employee other)
+	return name.equal(ohter.name);
+	
+System类的setOut方法是一个本地方法，可以绕过java的控制机制。所以它可以赋值final的System。out常量
+
+静态方法没有隐式参数，也就是不能使用this
+
+第4章
+可以为任何一个类添加finalize方法。finalize方法将在垃圾回收器清除对象之前调用。在实际应用中不要依赖使用finalize方法回收任何短缺的资源，因为很难知道这个方法什么时候才能调用。
+有个名为System.runFinalizersOnExit(true)方法确保finalize方法在java关闭前调用，不过这个方法并不安全。有一种代替方法Runtime。addShutdownHook添加关闭钩。
+如果某个资源在使用完毕后要立即被关闭，需要人工管理，可以应用一个类似dispose或close方法来完成清理操作。当对象不再使用时一定要调用它
+
+从Java SE 5.0开始，import可以导入静态方法和静态域
+2个实际应用
+	1. 算术函数
+	2. 笨重常量
+	
+javac com/mycompany/Test.java
+java com.mycompany.Test
+编译器不检查目录结构，所以Test.java不放在com/mycompany下也可以编译，但程序无法运行，因为虚拟机找不到类文件
+
+类加载器禁止用户自定义的以java开头的类
+
+设置类路径
+在UNIX中，采用：分隔
+在Windows中,采用;分隔
+
+从Java SE6开始，可以再JAR文件目录中采用通配符
+/home/user/archives/'*'  在UNIX中禁止使用*以防止shell命令进一步扩展
+或 c:\archives\*
+
+默认类路径包含.，如果设置了其他类路径，也需要加上.
+
+虚拟机先查看jre/lib,再查看jre/lib/ext，最后查看类路径
+编译器定位文件，如果一个类被引用，先查看类所在宝，再查看import的所有包或类
+
+设置类路径
+最好采用-classpath(或-cp)选项指定类路径
+java -classpath /home/user/classdir com.mycompany.Test
+所有指令应该写在一行，将这样的长指令放在shell或批处理中
+也可以通过设置CLASSPATH环境变量
+export CLASSPATH=....
+C shell
+setenv CLASSPATH ...
+Windows shell
+set CLASSPATH=...
+知道退出shell为止，类路径设置均有效
+
+javadoc从下面几个特性中抽取信息
+1. 包
+2. 公有类和接口
+3. 公有和受保护的方法
+4. 公有和受保护的域
+
+用于强调<em>...</em>
+用于等宽打字机字体<code></code>
+着重强调<strong></strong>
+包含图形<img...>
+不要使用<h1></h1>会与文档的格式产生冲突
+连接文件可以放在doc-files中
+
+@deprecated text
+标记类，方法，变量不在使用注释
+@see com.ibm.Test#test();
+文档会添加超链接到这个方法
+@see <a href="">..</a>
+其它see特性参考page152
+
+javadoc -d docDir bao1 bao2
+默认包
+javadoc -d docDir *.java
+
+命名类的好习惯是采用一个名词，前面有形容词修饰的名词或动名词修饰名词
+

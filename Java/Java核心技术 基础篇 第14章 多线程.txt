@@ -1,0 +1,46 @@
+﻿Java 多线程
+
+1. 中断线程
+每个线程有个中断状态的boolean值，可以调用Thread.currentThread().isInterrupted()方法查看。调用interrupt方法中断线程， 但如果线程被阻塞，就无法检测到中断状态， 会产生InterruptedException异常。
+一个阻塞线程(调用sleep或wait)上调用interrupt， 阻塞调用会被InterruptedException异常中断。
+
+2. 线程的6种状态
+New
+Runnable
+Blocked
+Waiting
+Timed waiting
+Terminated
+调用getState方法查看
+
+3. 守护线程
+t.SetDaemon(true);
+守护线程为其它线程提供服务， 但只剩下守护线程时，虚拟机就退出了。
+守护线程永远不要去访问固有的资源， 如文件， 数据库，因为他在任何时刻甚至在一个操作的中间发生中断。
+
+4. 锁对象
+synchronized， JavaSE5引入ReentrantLock类
+用ReentrantLock保护代码块结构如下
+Lock myLock = new ReentrantLock(); // 放在方法外
+myLock.lock;
+try {
+
+} finally {
+	myLock.unlock();
+}
+
+public synchronized void method(){}等价与上面的
+
+5. Object的一些跟线程有关的方法
+void wait()
+导致线程进入等待状态， 直到它被通知，该方法只能同步方法中被调用。 
+void notifyAll()
+解除那些在该对象上调用wait方法的线程的阻塞状态，该方法只能同步方法中被调用。 
+void notify()
+随机选择一个在该对象上调用wait方法的线程
+
+6. volatile 为属性的同步
+
+7. 线程与Swing
+线程使用EventQueue.invokelater方法来更新用户界面
+SwingWorker

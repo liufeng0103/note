@@ -1,0 +1,12 @@
+mysql常用命令
+
+增加了密码后的登录格式如下：
+　　mysql -u root -p 
+　　Enter password: (输入密码)
+
+启动mysql 通过输入命令  mysqld --skip-grant-tables  回车，此时就跳过了mysql的用户验证
+
+show databases;
+create database SAMPLE;
+use SAMPLE;
+show tables;

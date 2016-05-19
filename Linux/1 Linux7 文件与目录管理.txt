@@ -1,0 +1,171 @@
+7 Linux文件与目录管理
+
+1. 绝对路径用途
+鸟哥建议，写shell来管理系统的时候，使用绝对路径
+
+2. 目录的相关操作
+cd
+. 代表此目录
+.. 代表上一层目录
+- 代表前一个工作目录
+~ 代表目前用户所在的家目录
+~account 代表account这个用户的家目录
+
+常用处理目录的指令
+cd 变换目录
+pwd 显示当前目录
+mkdir 建立一个新目录
+rmdir 删除一个空的目录
+
+cd (change directory)
+[root@www ~]# cd 
+#没有加上任何路径，也还是代表回到自己家目录的意思喔！
+
+pwd	(print working directory)
+pwd -P(大写)
+-P 显示出确定的路径，而非使用链接路径
+
+mkdir -mp
+-m 配置文件权限，直接设定，不需要看预设权限
+-p 直接将所需的目录递归建立起来
+
+mkdir -p test1/test2/test3/test4
+# 加了-p，可以自行帮你建立多层目录
+
+mkdir -m 711 test2
+建立权限为rwx--x--x的目录
+
+rmdir -p
+-p 连同上层目录一起删除
+rmdir 仅能删除空的目录
+
+rm -r test 删除非空目录
+
+3. 执行文件路径变量 $PATH
+下达『echo $PATH』查看看到底有哪些目录被定义出来了？ echo有『显示、印出』的意思，而 PATH 前面加的 $ 表示后面接的是变量，所以会显示出目前的 PATH
+
+有些命令如果没有配置在PATH里，可以使用绝对路径来执行如 /etc/rc.d/init.d/httpd start
+
+配置PATH
+PATH = "$PATH"：/root
+
+为了安全起见，不建议将. 加入PATH的搜索目录中
+
+4. 文件与目录管理
+ls 了解各个参数
+
+复制，删除，移动 cp, rm, mv
+cp
+cp -r 可以复制目录
+cp -s和-l 建立连结档 -l是实体连结 -s是符号链接
+
+rm
+删除带-的文件
+rm ./-aaa 或者 rm -- -aaa
+
+touch 可以建立空文件
+
+mv
+rename 用来更改大量文件名
+
+取得路径的文件名与目录名
+basename /etc/sysconfig/network
+network
+dirname /etc/sysconfig/network
+/etc/sysconfig
+
+5. 查看文件内容
+cat 有第一行开始显示文件内容
+tac 从最后一行开始显示，可以看出tac是cat的倒着写
+nl 显示的时候，顺道输出行号
+more 一页一页的显示文件内容
+less 与more类似，但是比more更好的是，他可以往前翻页
+head 只看头几行
+tail  只看尾巴几行
+od 以二进制
+
+cat(concatenate)
+-A 可以列出一些特殊字符
+-b 列出行号
+-n 列出行号，空白行也有行号
+
+more
+空格键（space） 向下翻页
+Enter 向下翻一行
+/字符串 向下搜索字符串这个关键词，可以按n连续搜索
+：f 立刻显示出文件名以及目前显示的行数
+q 离开more
+b或ctrl b 往回翻页，这个动作只对文件有用，对管道无用
+
+less
+pagedown 向下翻页
+pageup 向上翻页
+？字符串 向上搜索字符串
+N 反向重复前一个搜索
+
+非文本文档 od
+od -t TYPE 文件
+-t 后面可以接各种类型的输出
+ a	利用默认字符输出
+ c	使用ASCII字符输出
+ d[size]	用十进制来输出数据，每个整数占用size bytes
+ f			用浮点数来输出
+ o			用八进制来输出
+ x			用十六进制来输出
+ 
+修改文件时间或新建文件 touch
+Linux底下都会记录很多时间参数
+modification time(mtime)
+文件内容更改时会更新这个时间
+
+status time(ctime)
+像权限，属性被更改时 
+
+access time(atime)
+文件内容被读取时
+
+ls -l --time=atime
+
+touch可以用来修改文件时间
+
+6 文件与目录的默认权限于隐藏权限
+在Linux的Ext2/Ext3文件系统下，我们还可以设定其他的系统隐藏属性， 
+这部份可使用 chattr 来设定，而以 lsattr 来查看，最重要的属性就是可以设定其不可修改的特性！
+
+文件默认权限 umask
+[root@www ~]# umask 
+0022 <==于一般权限有关的是后面三个数字！ 
+[root@www ~]# umask -S 
+u=rwx,g=rx,o=rx
+
+umask 的分数指的是『该默认值需要减掉的权限！』因为 r、w、x 分别是 4、2、1 分，
+umask 022
+预设 umask 的设定可以参考 /etc/bashrc 这个档案的内容
+
+7 文件隐藏属性
+chattr指令只能在Ext2/Ext3的文件系统上面生效
+chattr(配置文件隐藏属性)
++i 可以让文件无法被更改
++a 可以增加，但不能修改旧的数据 如log文件
+
+lsattr(显示档案隐藏属性)
+
+8 文件特殊权限:SUID, SGID, SBIT
+以后了解
+
+9 观察文件类型 file
+file 文件
+
+脚本和文件搜寻
+which
+这个指令根据PATH这个环境变量所规范的路径
+
+whereis 
+locate
+寻找数据是由已建立的数据库/var/lib/mlocate里面的数据所搜寻到的
+手动更新locate数据库 updatedb
+
+4天内被更改过的文件名
+find /var -mtime -4
+4天前的那一天
+find /var -mtime 4

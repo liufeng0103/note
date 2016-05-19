@@ -1,0 +1,18 @@
+man ascii 你可以得到一张ASCII字符码的表
+
+/* 交换x,y的值， 没有用到额外的存储，不过这种用法没有性能上的优势，正如书中说的这是一个智力游戏 */
+void inplace_swap(int *x, int *y) {
+	*y = *x ^ *y;
+	*x = *x ^ *y;
+	*y = *x ^ *y;
+}
+
+习题2.13自己做的答案
+bis(x, y)
+
+bic(x, bic(x, y))
+
+bic(bis(x, y), bic(x, bic(x, y)))
+
+<limits.h>定义了不同数据类型的取值范围的常量。 C只指定了数据类型的最小范围，而不是确定的范围。
+C99在<stdint.h>引入另一类整数类型。指定N为的有符号和无符号整数，如int32_t,uint16_t

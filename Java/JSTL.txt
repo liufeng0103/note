@@ -1,0 +1,18 @@
+﻿JSTL
+1. 下载最新的jar放到项目中。 
+2. 在JSP中加入下面标签，使用核心标签
+	<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+3. 日期时间格式化
+	<fmt:formatDate value="${today}" pattern="yyyy-MM-dd" />
+	
+EL
+1. 取值 
+	<%=user.getAddr( ) %> 等价于 ${user.addr}
+	< %=request. getParameter(“username”)% > 等价于 ${ param. username }
+	<%=request.getAttribute(“userlist”) %> 等价于$ { requestScope.userlist }
+2. 遍历对象集合的值
+	<c:forEach items="${requestScope.users}" var="user">
+		${user.user_name}<br/>
+	</c:forEach>
+3. 地区
+	 ${pageContext.response.locale} 	

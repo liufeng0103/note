@@ -1,0 +1,211 @@
+﻿AIX常用命令　
+ 
+目录操作
+命令名 功能描述 使用举例
+mkdir 创建一个目录 mkdir dirname
+rmdir 删除一个目录 rmdir dirname
+mvdir 移动或重命名一个目录 mvdir dir1 dir2
+cd 改变当前目录 cd dirname
+pwd 显示当前目录的路径名 pwd
+ls 显示当前目录的内容 ls -la
+dircmp 比较两个目录的内容 dircmp dir1 dir2
+
+文件操作
+命令名 功能描述 使用举例
+cat 显示或连接文件 cat filename
+pg 分页格式化显示文件内容 pg filename
+more 分屏显示文件内容 more filename
+od 显示非文本文件的内容 od -c filename
+cp 复制文件或目录 cp file1 file2
+rm 删除文件或目录 rm filename
+mv 改变文件名或所在目录 mv file1 file2
+ln 联接文件 ln -s file1 file2
+find 使用匹配表达式查找文件 find . -name "*.c" -print
+file 显示文件类型 file filename
+ 
+选择操作
+命令名 功能描述 使用举例
+head 显示文件的最初几行 head -20 filename
+tail 显示文件的最后几行 tail -15 filename
+cut 显示文件每行中的某些域 cut -f1,7 -d: /etc/passwd
+colrm 从标准输入中删除若干列 colrm 8 20 file2
+paste 横向连接文件 paste file1 file2
+diff 比较并显示两个文件的差异 diff file1 file2
+sed 非交互方式流编辑器 sed "s/red/green/g" filename
+grep 在文件中按模式查找 grep "^[a-zA-Z]" filename
+awk 在文件中查找并处理模式 awk '{print $1 $1}' filename
+sort 排序或归并文件 sort -d -f -u file1
+uniq 去掉文件中的重复行 uniq file1 file2
+comm 显示两有序文件的公共和非公共行 comm file1 file2
+wc 统计文件的字符数、词数和行数 wc filename
+nl 给文件加上行号 nl file1 >file2
+
+安全操作
+命令名 功能描述 使用举例
+passwd 修改用户密码 passwd
+chmod 改变文件或目录的权限 chmod ug+x filename
+umask 定义创建文件的权限掩码 umask 027
+chown 改变文件或目录的属主 chown newowner filename
+chgrp 改变文件或目录的所属组 chgrp staff filename
+xlock 给终端上锁 xlock -remote
+
+编程操作
+命令名 功能描述 使用举例
+make 维护可执行程序的最新版本 make
+touch 更新文件的访问和修改时间 touch -m 05202400 filename
+dbx 命令行界面调试工具 dbx a.out
+xde 图形用户界面调试工具 xde a.out
+
+进程操作
+命令名 功能描述 使用举例
+ps 显示进程当前状态 ps u
+kill 终止进程 kill -9 30142
+nice 改变待执行命令的优先级 nice cc -c *.c
+renice 改变已运行进程的优先级 renice +20 32768
+
+时间操作
+命令名 功能描述 使用举例
+date 显示系统的当前日期和时间 date
+cal 显示日历 cal 8 1996
+time 统计程序的执行时间 time a.out
+
+网络与通信操作
+命令名 功能描述 使用举例
+telnet 远程登录 telnet hpc.sp.net.edu.cn
+rlogin 远程登录 rlogin hostname -l username
+rsh 在远程主机执行指定命令 rsh f01n03 date
+ftp 在本地主机与远程主机 之间传输文件 ftp ftp.sp.net.edu.cn
+rcp 在本地主机与远程主机 之间复制文件 rcp file1 host1:file2
+ping 给一个网络主机发送 回应请求 ping hpc.sp.net.edu.cn
+mail 阅读和发送电子邮件 mail
+write 给另一用户发送报文 write username pts/1
+mesg 允许或拒绝接收报文 mesg n
+
+Korn Shell 命令
+命令名 功能描述 使用举例
+history 列出最近执行过的 几条命令及编号 history
+r 重复执行最近执行过的 某条命令 r -2
+alias 给某个命令定义别名 alias del=rm -i
+unalias 取消对某个别名的定义 unalias del
+
+其它命令
+命令名 功能描述 使用举例
+uname 显示操作系统的有关信息 uname -a
+clear 清除屏幕或窗口内容 clear
+env 显示当前所有设置过的环境变量 env
+who 列出当前登录的所有用户 who
+whoami 显示当前正进行操作的用户名 whoami
+tty 显示终端或伪终端的名称 tty
+stty 显示或重置控制键定义 stty -a
+du 查询磁盘使用情况 du -k subdir
+df 显示文件系统的总空间和可用空间 df /tmp
+
+FTP上传
+1.开始 - 运行 - 输入“cmd”,输入ftp 127.0.0.1
+　　*因为是本机*
+　　2.username:password
+　　*输入用户名，密码，如果你的密码输入错误，将不会提示你重新输入，这时你要键入“user”命令，你可以重新输入用户名和密码*
+　　3.dir
+　　*dir命令查看FTP服务器中的文件及目录，ls只可以查看文件*
+　　4.bin
+　　*采用二进制传输。如果你要上传下载，这一步很重要，不先执行这个命令，上传下载会很慢；type可查看当前传输模式*
+　　5.lcd
+　　*定位本地默认文件夹，可以在lcd后接你指定的本地文件夹，后面不跟参数的话，显示默认文件夹，一般为C:\Documents and Settings\Administrator*
+　　6.!dir
+　　*查看本地文件夹中的文件及目录；直接！回车，执行在本地机中执行交互shell，exit回到ftp环境*
+　　7.put 111.txt
+　　*将客户机当前目录(lcd命令)中的文件111.txt上传到FTP服务器。可用“mput *.*”将所有文件上传到FTP服务器*
+　　8.get 222.txt
+　　*将FTP服务器上文件222.txt下载到客户机当前目录(lcd命令)。可用“mget *.*”将所有文件下载到客户机*
+　　9.bye
+　　*退出FTP服务器*
+　　上传下载时特别要注意服务器及本地电脑的当前目录，文件是从哪里到哪里的问题。
+　　查看FTP服务器的当前目录命令为pwd,可以用cd命令定位服务器的目录，与DOS一样。lcd命令定位本地电脑的目录。
+　　以上实例应用到了采用FTP命令行方式上传下载的最常用命令，你还可以用命令“？”查看更多的命令。
+ 
+
+FTP命令详解
+ 
+ 
+ 
+　　FTP命令是Internet用户使用最频繁的命令之一，不论是在DOS还是UNIX操作系统下使用FTP，都会遇到大量的FTP内部命令。熟悉并灵活应用FTP的内部命令，可以大大方便使用者，并收到事半功倍之效。
+　　FTP的命令行格式为：ftp -v -d -i -n -g [主机名]，其中
+　　-v显示远程服务器的所有响应信息；
+　　-n限制ftp的自动登录，即不使用；
+　　.n etrc文件；
+　　-d使用调试方式；
+　　-g取消全局文件名。
+　　ftp使用的内部命令如下(中括号表示可选项):
+　　1.![cmd[args]]：在本地机中执行交互shell，exit回到ftp环境，如：!ls*.zip.
+　　2.$ macro-ame[args]：执行宏定义macro-name.
+　　3.account[password]：提供登录远程系统成功后访问系统资源所需的补充口令。
+　　4.append local-file[remote-file]：将本地文件追加到远程系统主机，若未指定远程系统文件名，则使用本地文件名。
+　　5.ascii：使用ascii类型传输方式。
+　　6.bell：每个命令执行完毕后计算机响铃一次。
+　　7.bin：使用二进制文件传输方式。
+　　8.bye：退出ftp会话过程。
+　　9.case：在使用mget时，将远程主机文件名中的大写转为小写字母。
+　　10.cd remote-dir：进入远程主机目录。
+　　11.cdup：进入远程主机目录的父目录。
+　　12.chmod mode file-name：将远程主机文件file-name的存取方式设置为mode，如：chmod 777 a.out。
+　　13.close：中断与远程服务器的ftp会话(与open对应)。
+　　14.cr：使用asscii方式传输文件时，将回车换行转换为回行。
+　　15.delete remote-file：删除远程主机文件。
+　　16.debug[debug-value]：设置调试方式，显示发送至远程主机的每条命令，如：deb up 3，若设为0，表示取消debug。
+　　17.dir[remote-dir][local-file]：显示远程主机目录，并将结果存入本地文件local-file。
+　　18.disconnection：同close。
+　　19.form format：将文件传输方式设置为format，缺省为file方式。
+　　20.get remote-file[local-file]：将远程主机的文件remote-file传至本地硬盘的local-file。
+　　21.glob：设置mdelete，mget，mput的文件名扩展，缺省时不扩展文件名，同命令行的-g参数。
+　　22.hash：每传输1024字节，显示一个hash符号(#)。
+　　23.help[cmd]：显示ftp内部命令cmd的帮助信息，如：help get。
+　　24.idle[seconds]：将远程服务器的休眠计时器设为[seconds]秒。
+　　25.image：设置二进制传输方式(同binary)。
+　　26.lcd[dir]：将本地工作目录切换至dir。
+　　27.ls[remote-dir][local-file]：显示远程目录remote-dir，并存入本地文件local-file。
+　　28.macdef macro-name：定义一个宏，遇到macdef下的空行时，宏定义结束。
+　　29.mdelete[remote-file]：删除远程主机文件。
+　　30.mdir remote-files local-file：与dir类似，但可指定多个远程文件，如：mdir *.o.*.zipoutfile
+　　31.mget remote-files：传输多个远程文件。
+　　32.mkdir dir-name：在远程主机中建一目录。
+　　33.mls remote-file local-file：同nlist，但可指定多个文件名。
+　　34.mode[modename]：将文件传输方式设置为modename，缺省为stream方式。
+　　35.modtime file-name：显示远程主机文件的最后修改时间。
+　　36.mput local-file：将多个文件传输至远程主机。
+　　37.newer file-name：如果远程机中file-name的修改时间比本地硬盘同名文件的时间更近，则重传该文件。
+　　38.nlist[remote-dir][local-file]：显示远程主机目录的文件清单，并存入本地硬盘的local-file。
+　　39.nmap[inpattern outpattern]：设置文件名映射机制，使得文件传输时，文件中的某些字符相互转换，如：nmap $1.$2.$3[$1，$2].[$2，$3]，则传输文件a1.a2.a3时，文件名变为a1，a2。该命令特别适用于远程主机为非UNIX机的情况。
+　　40.ntrans[inchars[outchars]]：设置文件名字符的翻译机制，如ntrans 1R，则文件名LLL将变为RRR。
+　　41.open host[port]：建立指定ftp服务器连接，可指定连接端口。
+　　42.passive：进入被动传输方式。
+　　43.prompt：设置多个文件传输时的交互提示。
+　　44.proxy ftp-cmd：在次要控制连接中，执行一条ftp命令，该命令允许连接两个ftp服务器，以在两个服务器间传输文件。第一条ftp命令必须为open，以首先建立两个服务器间的连接。
+　　45.put local-file[remote-file]：将本地文件local-file传送至远程主机。
+　　46.pwd：显示远程主机的当前工作目录。
+　　47.quit：同bye，退出ftp会话。
+　　48.quote arg1，arg2...：将参数逐字发至远程ftp服务器，如：quote syst.
+　　49.recv remote-file[local-file]：同get。
+　　50.reget remote-file[local-file]：类似于get，但若local-file存在，则从上次传输中断处续传。
+　　51.rhelp[cmd-name]：请求获得远程主机的帮助。
+　　52.rstatus[file-name]：若未指定文件名，则显示远程主机的状态，否则显示文件状态。
+　　53.rename[from][to]：更改远程主机文件名。
+　　54.reset：清除回答队列。
+　　55.restart marker：从指定的标志marker处，重新开始get或put，如：restart 130。
+　　56.rmdir dir-name：删除远程主机目录。
+　　57.runique：设置文件名唯一性存储，若文件存在，则在原文件后加后缀..1，.2等。
+　　58.send local-file[remote-file]：同put。
+　　59.sendport：设置PORT命令的使用。
+　　60.site arg1，arg2...：将参数作为SITE命令逐字发送至远程ftp主机。
+　　61.size file-name：显示远程主机文件大小，如：site idle 7200。
+　　62.status：显示当前ftp状态。
+　　63.struct[struct-name]：将文件传输结构设置为struct-name，缺省时使用stream结构。
+　　64.sunique：将远程主机文件名存储设置为唯一(与runique对应)。
+　　65.system：显示远程主机的操作系统类型。
+　　66.tenex：将文件传输类型设置为TENEX机的所需的类型。
+　　67.tick：设置传输时的字节计数器。
+　　68.trace：设置包跟踪。
+　　69.type[type-name]：设置文件传输类型为type-name，缺省为ascii，如：type binary，设置二进制传输方式。
+　　70.umask[newmask]：将远程服务器的缺省umask设置为newmask，如：umask 3。
+　　71.user user-name[password][account]：向远程主机表明自己的身份，需要口令时，必须输入口令，如：user anonymous my@email。
+　　72.verbose：同命令行的-v参数，即设置详尽报告方式，ftp服务器的所有响应都将显示给用户，缺省为on.
+　　73.?[cmd]：同help。 

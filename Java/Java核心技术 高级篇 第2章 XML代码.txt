@@ -1,0 +1,49 @@
+Java核心技术-高级特性(第8版) 
+第2章 XML代码
+
+1. DOM解析器
+DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+DocumentBuilder builder = factory.newDocumentBuilder();	// 产生一个DocumentBuilder对象
+File file = new File("test.xml");
+Document doc = builder.parse(file);						// 解析文件，生成Dom树。 file可以是File， URL， InputStream
+Element root = doc.getDocumentElement();				// 获取根元素
+String rootTagName = root.getTagName();					// 获取根tag名
+NodeList children = root.getChildNodes();				// 获取根元素的所有子节点
+Node node = children.item(2);							// 访问第3个节点
+if (node instanceof Element) { 							// 判读节点是否为元素， 如<PDHDOMAIN>xSeries</PDHDOMAIN>， PDHDOMAIN属于element
+	Element element = (Element) node;					// 节点类型转换为Element
+	String tagName = element.getTagName();				// 获取元素tag名
+} 
+if (node instanceof CharacterData) {					// 判读节点是否为字符数据, 回车空格也属于CharacterData
+	CharacterData characterNode = (CharacterData) node;
+	if (node instanceof Text) { 						// 判读数据是否为文本内容, 如<PDHDOMAIN>xSeries</PDHDOMAIN>, xSeries属于Text
+		Text text = (Text) node;
+		String tagValue = text.getData().trim();		// 获取节点值			
+	} else if (node instanceof Comment) { 				// 判读数据是否为注释， 如<!--CATNAV_UPDATE Version 1 Mod 0--> 
+		String commentValue = characterNode.getData();	// 获取注释内容
+	}	
+}
+NamedNodeMap attributes = root.getAttributes();			// 获取root元素的所有属性节点
+Node attribute = attributes.item(0);					// 获取第1个属性节点
+String name = attribute.getNodeName();					// 属性名
+String value = attribute.getNodeValue();				// 属性值
+String xmlns = root.getAttribute("xmlns");				// 直接通过属性名获取属性值
+for(Node childNode = element.getFirstChild(); 			// 另一种方法遍历所有节点
+	childNode != null; 
+	childNode = childNode.getNextSibling())
+// 获取子节点数
+public int getChildCount(Node parent)
+{
+   Node node = parent;
+   NodeList list = node.getChildNodes();
+   return list.getLength();
+}
+// 判读是否为叶子节点
+public boolean isLeaf(Node node)
+{
+   return getChildCount(node) == 0;
+}
+
+2. XPath
+XPathFactory xpfactory = XPathFactory.newInstance();
+XPath path = xpfactory.newXPath();

@@ -1,0 +1,50 @@
+Apache
+
+/etc/httpd 是Apache服务器的根目录
+/var/www/html 是Apache服务器文档根目录
+/var/log/httpd 是存放Apache服务器日志文件
+
+启动
+/etc/rc.d/init.d/httpd start
+
+
+MySQL
+先rpm -qa|grep mysql 查看所有mysql的相关联的依赖
+然后使用 yum remove xxx删掉相应的依赖
+
+安装新的mysql，网络安装
+yum -y install mysql-server
+
+安装完了后，启动服务
+/etc/rc.d/init.d/mysqld start
+或者mysqladmin start
+
+查看是否安装成功
+netstat -atln 看3306是否开放
+
+初始无密码,修改登录密码
+MySQL默认没有密码
+/usr/bin/mysqladmin -u root password 'new-password'
+格式：mysqladmin -u用户名 -p旧密码 password 新密码
+
+目录
+1、数据库目录
+/var/lib/mysql/
+2、配置文件
+/usr/share/mysql（mysql.server命令及配置文件）
+3、相关命令
+/usr/bin(mysqladmin mysqldump等命令)
+4、启动脚本
+/etc/rc.d/init.d/（启动脚本文件mysql的目录）
+
+PHP
+安装
+yum install php
+安装完php后，必须要重新启动Apache以使php生效
+/etc/init.d/httpd restart
+这时Apache已经可以解析执行php脚本了.由于Apache的默认网站根目录位于/var/www/html/因此在此目录建立一个info.php用来测试Apache+PHP的正确安装与否
+echo "<?php phpinfo(); ?>" > /var/www/html/info.php
+
+将LAMP组件设置为自动启动
+chkconfig --levels 2345 httpd on
+chkconfig --levels 2345 mysqld on

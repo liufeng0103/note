@@ -1,0 +1,57 @@
+18 认识系统服务
+
+chkconfig
+
+提供了一个维护/etc/rc[0~6] d 文件夹的命令行工具，它减轻了系统直接管理这些文件夹中的符号连接的负担。chkconfig主要包括5个原始功能：为系统管理增加新的服务、为系统管理移除服务、列出单签服务的启动信息、改变服务的启动信息和检查特殊服务的启动状态。当单独运行chkconfig命令而不加任何参数时，他将显示服务的使用信息。
+
+
+
+必要参数
+    --add 开启指定的服务程序
+    --del 关闭指定的服务程序
+    --list 列出chkconfig所知道的所有服务
+
+选择参数
+    --level<代号> 设置服务程序的等级代号，它是一串0~7的数字，如“-level35”代表指定运行等级3和5
+    --help 显示帮助信息
+    --version 显示版本信息
+	
+[root@localhost www]# chkconfig --list    #查看系统程序列表
+
+[root@localhost www]# chkconfig httpd on  #将httpd加入开机启动
+
+[root@localhost www]# chkconfig httpd off  #关闭httpd开机启动
+	
+让 atd 这个服务在 run level 为 3, 4, 5 时启动：
+[root@www ~]# chkconfig --level 345 atd on
+
+先观察 httpd ，再观察默认有无启动，之后以 chkconfig 配置为默认启动
+[root@www ~]# /etc/init.d/httpd status
+
+[root@www ~]# chkconfig --list httpd
+
+[root@www ~]# chkconfig httpd on; chkconfig --list httpd
+httpd           0:off   1:off   2:on    3:on    4:on    5:on    6:off
+
+
+service 
+其实 service 仅是一支 script 啦，他可以分析你下达的 service 后面的参数，然后根据你的参数再到 /etc/init.d/ 去取得正确的服务来 start 或 stop 哩
+
+[root@www ~]# service [service name] (start|stop|restart|...)
+[root@www ~]# service --status-all
+选项与参数：
+service name：亦即是需要启动的服务名称，需与 /etc/init.d/ 对应；
+start|...   ：亦即是该服务要进行的工作。
+--status-all：将系统所有的 stand alone 的服务状态通通列出来
+
+范例三：重新启动 crond 这支 daemon ：
+[root@www ~]# service crond restart
+[root@www ~]# /etc/init.d/crond restart
+# 这两种方法随便你用哪一种来处理都可以！不过鸟哥比较喜欢使用 /etc/init.d/*
+
+范例四：显示出目前系统上面所有服务的运行状态
+[root@www ~]# service --status-all
+acpid (pid 4536) 正在运行...
+anacron 已停止
+atd (pid 4694) 正在运行...
+....(底下省略)....

@@ -1,0 +1,101 @@
+﻿1. 下载Maven
+2. 解压
+3. 配置环境变量
+	安装JDK后配置下JAVA_HOME,Maven需要用到这个
+	JAVA_HOME = C:\Program Files\IBM\Java60\jre
+4. 验证
+	mvn -version
+5. 创建项目,第一次需要联网,maven会下载需要的插件
+mvn archetype:generate -DgroupId=com.mycompany.helloworld -DartifactId=helloworld -Dpackage=com.mycompany.helloworld -Dversion=1.0-SNAPSHOT	
+mvn archetype:generate -DgroupId=com.mycompany.helloworld -DartifactId=helloworld -DarchetypeArtifactId=maven-archetype-webapp
+
+src/main/java
+项目源代码
+src/test/java
+项目测试代码
+
+
+Eclipse插件
+1. 下载插件Maven Integration for Eclipse WTP
+2. 配置maven
+	Maven - Installations
+3. 新建maven project
+	Use Default Workspace Location（其实这个路径是documents and settings\用户名\.m2\repository）
+	
+pom.xml
+scope 决定了依赖关系的适用范围
+scope 是 test
+scope 为 provided
+scope 的默认值是 compile，即任何时候都会被包含在 classpath 中，在打包的时候也会被包括进去
+
+编译
+mvn clean compile
+
+
+使用eclipse插件创建一个web project
+http://www.cnblogs.com/zhaoyang/archive/2012/01/07/2315455.html
+
+Dependency Scope
+目前<scope>可以使用5个值： 
+compile，缺省值，适用于所有阶段，会随着项目一起发布。 
+provided，类似compile，期望JDK、容器或使用者会提供这个依赖。如servlet.jar。 
+runtime，只在运行时使用，如JDBC驱动，适用运行和测试阶段。 
+test，只在测试时使用，用于编译和运行测试代码。不会随项目发布。 
+system，类似provided，需要显式提供包含依赖的jar，Maven不会在Repository中查找它。
+
+添加本地包到maven仓库
+mvn install:install-file -Dfile=D:\mvn\spring-context-support-3.1.0.RELEASE.jar -DgroupId=org.springframework -DartifactId=spring-context-support -Dversion=3.1.0.RELEASE -Dpackaging=jar
+
+用maven导入依赖包，maven会帮你自动导入这个包所依赖的其它包
+
+由于默认的maven库服务器是美国的，相对我来说速度较慢，可以配置使用oschina的maven服务
+
+修改setting.xml,修改前记得备份原文件
+<mirrors>
+    <mirror>
+        <id>nexus-osc</id>
+        <mirrorOf>*</mirrorOf>
+        <name>Nexus osc</name>
+        <url>http://maven.oschina.net/content/groups/public/</url>
+    </mirror>
+</mirrors>
+
+插件包地址
+<profile>
+    <id>jdk-1.4</id>
+    <activation>
+        <jdk>1.4</jdk>
+    </activation>
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>local private nexus</name>
+            <url>http://maven.oschina.net/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus</id>
+            <name>local private nexus</name>
+            <url>http://maven.oschina.net/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+</profile>
+
+导出依赖jar
+mvn dependency:copy-dependencies
+
+
+

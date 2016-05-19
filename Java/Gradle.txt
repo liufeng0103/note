@@ -1,0 +1,139 @@
+﻿Gradle
+http://blog.csdn.net/liufeng0103/article/details/47067527
+1. Gradle是一个自动构建工具，有点像ant, maven。 也是一个构建集成工具可以和ant,maven等集成使用，它的特点之一是支持多工程构建
+2. 安装
+	1. 官网下载压缩包并解压， 把软件/bin目录加到系统环境变量， 打开命令行终端敲入gradle -v测试版本信息，如果能正确显示gradle的版本信息则表示安装正确了
+4. 基本使用
+	1. 新建项目，在项目文件夹下创建文件build.gradle，加入内容apply plugin:'eclipse'
+	2. 终端运行gradle eclipse即可构建eclipse IDL开发环境
+	3. gradle默认值，gradle的目录继承maven风格
+5. build.gradle文件常用任务
+	apply plugin: 'maven'  
+    apply plugin: 'war'  
+    apply plugin: 'eclipse-wtp'  
+    apply plugin: 'jetty'   
+    repositories {  
+        mavenCentral()  
+    }  
+    dependencies {  
+        compile (  
+            "javax.servlet:javax.servlet-api:3.1-b07",  
+            "org.slf4j:slf4j-log4j12:1.7.5",  
+            "org.slf4j:slf4j-jdk14:1.7.5",  
+            "mysql:mysql-connector-java:5.1.24"  
+        )  
+    }  
+    task copyHbm(type: Copy){  
+        from 'src/main/java/com/base/model'  
+        into 'build/classes/main/com/base/model'  
+        exclude '**/*.java'  
+    }  
+	1. apply plugin: 'maven'： 使用maven做为jar包的信赖管理，通过mave仓库下载项目所需的信赖包 
+	2. apply plugin: 'war'：指定web项目，项目编译(在项目提示符下执行：gradle build)时生成项目的war包
+	3. apply plugin: 'java': 指定项目为java项目，项目编译(在项目提示符下执行：gradle build)时生成项目的jar包
+	4. apply plugin: 'eclipse-wtp'：插件将构建web项目的开发环境，生成所需要的.project,.classpath等文件。因为web开发使用的是eclipse-j2ee版本，所以指定为wtp环境
+	5. apply plugin: 'eclipse'：java项目的eclipse开发环境构建.生成所需要的.project,.classpath等文件
+	6. apply plugin: 'jetty'：加入jetty的支持，代码修改后直接执行命令gradle jettyRun即可运行web项目
+	7. repositories: 指定仓库使用
+	8. dependencies：项目依赖定义，compile为编译级别依赖，还有testCompile为测试级别的依赖等
+	9. compile: jar包的依赖配置有几种方法，我这里采用的是较为简略的方式，其中还有一种是: 
+        compile group: 'org.hibernate', name: 'hibernate-core', version: '3.6.7.Final'  
+		testCompile group: 'junit', name: 'junit', version: '4.+'  
+	10. task copyHbm(type: Copy)： 是自定义的一个任务，目的是将hibernate的映射文件也拷贝到正确的目录，gradle默认源码包下只对java文件名进行打包，xml文件则被忽略了。在项目提示符下gradle copyHbm即可执行任务定义的动作
+6. gradle常用命令:
+	1. gradle eclipse : 构建开发环境，下载定义的jar包
+	2. gradle build : 编译项目，生成build文件夹，并生成相应的jar或war包
+	3. gradle clean : 与build相反，删除build文件夹
+7. 类似于Maven的pom.xml文件，每个Gradle项目都需要有一个对应的build.gradle文件，该文件定义一些任务来构建工作
+	defaultTasks 'taskB'
+	task taskA << {
+		println "i'm task A"
+	}
+	task taskB << {
+		println "i'm task B, and I depend on " + taskA.name
+	}
+	taskB.dependsOn taskA
+	运行命令$ gradle -q之后（参数q让Gradle不要打印错误之外的日志），就能看到如下的预期输出
+	i'm task A
+	i'm task B, and I depend on taskA
+8. 依赖管理和集成Maven仓库，2种方式对比
+	<dependencies>
+        <dependency>
+            <groupId>com.google.code.kaptcha</groupId>
+            <artifactId>kaptcha</artifactId>
+            <version>${kaptcha.version}</version>
+            <classifier>jdk15</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+	gradle:
+	dependencies {
+		compile('org.springframework:spring-core:2.5.6')
+		compile('org.springframework:spring-beans:2.5.6')
+		compile('org.springframework:spring-context:2.5.6')
+		compile('com.google.code.kaptcha:kaptcha:2.3:jdk15')
+		testCompile('junit:junit:4.7')
+	}
+9. 在Gradle中配置使用Maven本地仓库、中央仓库、以及自定义地址仓库,下载后的文件被存储在user_home/.gradle/cache/
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		mavenRepo urls: "http://repository.sonatype.org/content/groups/forge/"
+	}
+10. Gradle项目生成的构件发布到Maven仓库,使用Gradle的Maven Plugin
+	apply plugin: 'maven'
+	...
+	uploadArchives {
+		repositories.mavenDeployer {
+			repository(url: "http://localhost:8088/nexus/content/repositories/snapshots/") {
+				authentication(userName: "admin", password: "admin123")
+				pom.groupId = "com.juvenxu"
+				pom.artifactId = "account-captcha"
+			}
+		}
+	}
+11. 自定义项目布局
+	sourceSets {
+		main {
+			java {
+				srcDir 'src/java'
+			}
+			resources {
+				srcDir 'src/resources'
+			}
+		}
+	}
+12. 基本概念(Project 和 Task)
+13. 构建一个task，运行这个task在当前目录下运行gradle hello. doLast表示放在这个task的最后
+	task hello {
+      doLast{
+           println "hello world"
+      }
+	   doFirst{
+		  println "I am xxx"
+		}   
+	}
+	执行输出
+	"I am xxx"
+	"Hello world"
+	使用如下更简洁的方式定义task：
+	task hello<<{
+		println "hello world"
+	}
+14. Spring下的一个用Gradle build一个项目可以参考下 http://spring.io/guides/gs/rest-service/
+	1. 项目下mkdir -p src/main/java/hello创建目录结构

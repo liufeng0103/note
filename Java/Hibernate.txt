@@ -1,0 +1,119 @@
+﻿Hibernate
+1. 集合映射
+	1. Set 通常用
+	2. List 用法和set一样， 当需要排序的时候可以用list
+		1. @OrderBy默认主键排序
+		2. @OrderBy("name ASC,age DESC")
+	3. Map
+		1. key一般为User某个字段， 但不能重复的那种，大多用主键
+			@OneToMany(mappedBy="group", cascade=CascadeType.ALL)
+			@MapKey(name="id")
+			Map<Integer, User> users = new HaspMap<Integer, User>();
+			cascade设置是数组， 如果只设一个值可以省略大括号
+		2. 遍历map
+			for(Map.Entry<Integer, User> entry : g.getUsers.entrySet()) {
+				entry.getValue();
+				entry.getKey();
+			}
+	4. JPA 1.0 如果集合里是个基本类型比如String, Integer，是没法映射的
+2. 继承映射
+3. Spring整合Hibernate
+	1. 在Spring容器中配置SessionFactory
+	<beans>
+
+		<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+			<property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+			<property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
+			<property name="username" value="sa"/>
+			<property name="password" value=""/>
+		</bean>
+		<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+			<property name="driverClass" value="org.hsqldb.jdbcDriver"/>
+			<property name="jdbcUrl" value="jdbc:hsqldb:mem:dqcs"/>
+			<property name="user" value="sa"/>
+			<property name="password" value=""/>
+			 <!-- 设置连接池初始值 -->
+			<property name="initialPoolSize" value="5" />
+		</bean>
+		<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="hibernateProperties">
+				<value>
+					hibernate.dialect=org.hibernate.dialect.HSQLDialect
+					 <!-- 设置自动创建|更新|验证数据库表结构 -->
+					hibernate.hbm2ddl.auto=update
+					<!-- 是否在控制台显示sql -->
+					hibernate.show_sql=true
+					<!-- 是否格式化sql，优化显示 -->
+					hibernate.format_sql=true
+					<!-- 创建session方式 hibernate4.x 的方式 -->
+					hibernate.current_session_context_class=org.springframework.orm.hibernate4.SpringSessionContext
+				</value>
+			</property>
+			<!-- 自动扫描实体对象的包结构中存放实体类 -->
+			<property name="packagesToScan" value="com.ibm.dqcs.po" />
+		</bean>
+		<!-- 定义事务管理 -->
+		<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+		<tx:advice id="txAdvice" transaction-manager="transactionManager">
+			<tx:attributes>
+				<!-- 事务执行方式
+					REQUIRED：指定当前方法必需在事务环境中运行，
+					如果当前有事务环境就加入当前正在执行的事务环境，
+					如果当前没有事务，就新建一个事务。
+					这是默认值。 
+				 -->
+				<tx:method name="create*" propagation="REQUIRED" />
+				<tx:method name="save*" propagation="REQUIRED" />
+				<tx:method name="add*" propagation="REQUIRED" />
+				<tx:method name="update*" propagation="REQUIRED" />
+				<tx:method name="remove*" propagation="REQUIRED" />
+				<tx:method name="del*" propagation="REQUIRED" />
+				<tx:method name="import*" propagation="REQUIRED" />
+				<!-- 
+					指定当前方法以非事务方式执行操作，如果当前存在事务，就把当前事务挂起，等我以非事务的状态运行完，再继续原来的事务。 
+					查询定义即可
+					read-only="true"  表示只读
+				 -->
+				<tx:method name="*" propagation="NOT_SUPPORTED" read-only="true" />
+			</tx:attributes>
+		</tx:advice>
+
+		<!-- 定义切面，在 * tdxy.*.service.*ServiceImpl.*(..) 中执行有关的hibernate session的事务操作 -->
+		<aop:config>
+			<aop:pointcut id="serviceOperation" expression="execution(* dqcs*.service.*Service.*(..))" />
+			<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation" />
+		</aop:config>
+	</beans>
+	org.springframework.orm.hibernate4.LocalSessionFactoryBean不支持Hibernate的annotation。如果要使用Hibernate的注解可以使用AnnotationSessionFactoryBean，他继承了LocalSessionFactoryBean
+	2. Spring怎么注入properties， 可以查看文档，搜索collection
+		1.
+		<property name="adminEmails">
+			<props>
+				<prop key="administrator">administrator@example.org</prop>
+				<prop key="support">support@example.org</prop>
+				<prop key="development">development@example.org</prop>
+			</props>
+		</property>
+		2. 
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=org.hibernate.dialect.HSQLDialect
+				hibernate.show_sql=true
+			</value>
+		</property>
+	3. 设置方言dialect，查看Hibernate文档
+	4. 设置annotatedClasses,用于Hibernate的注解class
+		<property name="设置annotatedClasses">
+			<list>
+				<value>com.ibm.dqcs.model.User</value>
+			</list>
+		</property>
+	5. 在dao中注入SessionFactory
+	Session s = sessionFactory.getOpenSession();
+	s.beginTransaction();
+	s.save();
+	s.getTransaction.commit();
+	6. 日志中打印建表语句 log4j.logger.org.hibernate.tool.hbm2ddl=debug

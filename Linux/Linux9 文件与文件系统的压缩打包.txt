@@ -1,0 +1,42 @@
+9 文件的压缩打包
+
+1. 压缩文件类型
+.Z			compress程序压缩
+.gz			gzip程序压缩
+.bz2		bzip2程序压缩
+.tar		tar程序打包数据，没有压缩
+.tar.gz		tar打包，gzip压缩
+.tar.bz2	tar打包，bzip2压缩
+
+常用gzip与bzip2
+
+tar打包与压缩的区别
+
+2. gzip
+可以解开compress，zip，gzip等压缩文件
+gzip [-cdtv#] 文件名
+
+gzip -v 文件名
+压缩
+
+gzip -d 文件名
+解压缩
+
+cat可以读取纯文本文件，zcat可以读取纯文本文件被压缩后的压缩文件
+zcat可以读取compress与gzip的压缩文件
+
+3. bzip2
+bzip2 [-cdkzv#] 文件名
+bzcat 文件名.bz2
+
+4. tar打包命令
+打包与压缩	tar -jcv -f filename.tar.baz2 文件名
+解压缩		tar -jxv -f filename.tar.bz2 -C 要解压的目录
+
+5. 完整备份工具dump
+复原工具 restore
+
+mkisofs 建立映像文件
+
+cdrecord 关盘刻录工具
+

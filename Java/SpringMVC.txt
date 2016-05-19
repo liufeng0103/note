@@ -1,0 +1,199 @@
+﻿http://sishuok.com/forum/blogPost/list/5160.html
+
+1. 前端控制器的配置
+
+<servlet>  
+    <servlet-name>chapter2</servlet-name>  
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+    <load-on-startup>1</load-on-startup>  
+</servlet>  
+<servlet-mapping>  
+    <servlet-name>chapter2</servlet-name>  
+    <url-pattern>/</url-pattern>  
+</servlet-mapping>
+
+<servlet>
+        <servlet-name>chapter2</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+		<!--自己指定配置文件-->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-servlet-config.xml</param-value>
+        </init-param>
+    </servlet>
+
+load-on-startup：表示启动容器时初始化该Servlet
+默认DispatcherServlet会加载WEB-INF/[DispatcherServlet的Servlet名字]-servlet.xml配置文件
+
+
+2. 在Spring配置文件中配置HandlerMapping、HandlerAdapter
+WEB-INF/ chapter2-servlet.xml文件中
+<!-- HandlerMapping -->  
+<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>  
+   
+<!-- HandlerAdapter -->  
+<bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/> 
+
+3. 在Spring配置文件中配置ViewResolver
+<!-- ViewResolver -->  
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>  
+    <property name="prefix" value="/WEB-INF/jsp/"/>  
+    <property name="suffix" value=".jsp"/>  
+</bean>  
+InternalResourceViewResolver：用于支持Servlet、JSP视图解析
+viewClass：JstlView表示JSP模板页面需要使用JSTL标签库，classpath中必须包含jstl的相关jar包
+prefix和suffix：查找视图页面的前缀和后缀（前缀[逻辑视图名]后缀），比如传进来的逻辑视图名为hello，则该该jsp视图页面应该存放在“WEB-INF/jsp/hello.jsp”
+
+4. ModelAndView
+//1、收集参数、验证参数  
+//2、绑定参数到命令对象  
+//3、将命令对象传入业务对象进行业务处理  
+//4、选择下一个页面  
+ModelAndView mv = new ModelAndView();  
+//添加模型数据 可以是任意的POJO对象  
+mv.addObject("message", "Hello World!");  
+//设置逻辑视图名，视图解析器会根据该名字解析到具体的视图页面  
+mv.setViewName("hello")
+
+JSP
+${message}：表示显示由HelloWorldController处理器传过来的模型数据
+
+5. POST中文乱码解决
+spring Web MVC框架提供了org.springframework.web.filter.CharacterEncodingFilter用于解决POST方式造成的中文乱码问题
+<filter>  
+    <filter-name>CharacterEncodingFilter</filter-name>  
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>  
+    <init-param>  
+        <param-name>encoding</param-name>  
+        <param-value>utf-8</param-value>  
+    </init-param>  
+</filter>  
+<filter-mapping>  
+    <filter-name>CharacterEncodingFilter</filter-name>  
+    <url-pattern>/*</url-pattern>  
+</filter-mapping> 
+
+6. Spring3.1新特性
+1. Spring2.5之前，我们都是通过实现Controller接口或其实现来定义我们的处理器类
+2. Spring2.5引入注解式处理器支持，通过@Controller 和 @RequestMapping注解定义我们的处理器类。并且提供了一组强大的注解：
+需要通过处理器映射DefaultAnnotationHandlerMapping和处理器适配器AnnotationMethodHandlerAdapter来开启支持@Controller 和 @RequestMapping注解的处理器
+@Controller：用于标识是处理器类；
+@RequestMapping：请求到处理器功能方法的映射规则；
+@RequestParam：请求参数到处理器功能处理方法的方法参数上的绑定；
+@ModelAttribute：请求参数到命令对象的绑定；
+@SessionAttributes：用于声明session级别存储的属性，放置在处理器类上，通常列出模型属性（如@ModelAttribute）对应的名称，则这些属性会透明的保存到session中；
+@InitBinder：自定义数据绑定注册支持，用于将请求参数转换到命令对象属性的对应类型；
+3. Spring3.0引入RESTful架构风格支持(通过@PathVariable注解和一些其他特性支持),且又引入了更多的注解支持：
+@CookieValue：cookie数据到处理器功能处理方法的方法参数上的绑定；
+@RequestHeader：请求头（header）数据到处理器功能处理方法的方法参数上的绑定；
+@RequestBody：请求的body体的绑定（通过HttpMessageConverter进行类型转换）；
+@ResponseBody：处理器功能处理方法的返回值作为响应体（通过HttpMessageConverter进行类型转换）；
+@ResponseStatus：定义处理器功能处理方法/异常处理器返回的状态码和原因；
+@ExceptionHandler：注解式声明异常处理器；
+@PathVariable：请求URI中的模板变量部分到处理器功能处理方法的方法参数上的绑定，从而支持RESTful架构风格的URI；
+4. 还有比如：
+JSR-303验证框架的无缝支持（通过@Valid注解定义验证元数据）；
+使用Spring 3开始的ConversionService进行类型转换（PropertyEditor依然有效），支持使用@NumberFormat 和 @DateTimeFormat来进行数字和日期的格式化；
+HttpMessageConverter（Http输入/输出转换器，比如JSON、XML等的数据输出转换器）；
+ContentNegotiatingViewResolver，内容协商视图解析器，它还是视图解析器，只是它支持根据请求信息将同一模型数据以不同的视图方式展示（如json、xml、html等），RESTful架构风格中很重要的概念（同一资源，多种表现形式）；
+Spring 3 引入 一个  mvc XML的命名空间用于支持mvc配置，包括如：
+    <mvc:annotation-driven>：
+      自动注册基于注解风格的处理器需要的DefaultAnnotationHandlerMapping、AnnotationMethodHandlerAdapter
+      支持Spring3的ConversionService自动注册
+      支持JSR-303验证框架的自动探测并注册（只需把JSR-303实现放置到classpath）
+      自动注册相应的HttpMessageConverter（用于支持@RequestBody  和 @ResponseBody）（如XML输入输出转换器（只需将JAXP实现放置到classpath）、JSON输入输出转换器（只需将Jackson实现放置到classpath））等。
+    <mvc:interceptors>：注册自定义的处理器拦截器；
+    <mvc:view-controller>：和ParameterizableViewController类似，收到相应请求后直接选择相应的视图；
+    <mvc:resources>：逻辑静态资源路径到物理静态资源路径的支持；
+    <mvc:default-servlet-handler>：当在web.xml 中DispatcherServlet使用<url-pattern>/</url-pattern> 映射时，能映射静态资源（当Spring Web MVC框架没有处理请求对应的控制器时（如一些静态资源），转交给默认的Servlet来响应静态文件，否则报404找不到资源错误，）
+
+5. Spring3.1新特性：
+对Servlet 3.0的全面支持。
+ 
+@EnableWebMvc：用于在基于Java类定义Bean配置中开启MVC支持，和XML中的<mvc:annotation-driven>功能一样；
+ 
+新的@Contoller和@RequestMapping注解支持类：处理器映射RequestMappingHandlerMapping 和 处理器适配器RequestMappingHandlerAdapter组合来代替Spring2.5开始的处理器映射DefaultAnnotationHandlerMapping和处理器适配器AnnotationMethodHandlerAdapter，提供更多的扩展点，它们之间的区别我们在处理器映射一章介绍。
+ 
+新的@ExceptionHandler 注解支持类：ExceptionHandlerExceptionResolver来代替Spring3.0的AnnotationMethodHandlerExceptionResolver，在异常处理器一章我们再详细讲解它们的区别。
+ 
+@RequestMapping的"consumes" 和 "produces" 条件支持：用于支持@RequestBody 和 @ResponseBody，
+1consumes指定请求的内容是什么类型的内容，即本处理方法消费什么类型的数据，如consumes="application/json"表示JSON类型的内容，Spring会根据相应的HttpMessageConverter进行请求内容区数据到@RequestBody注解的命令对象的转换；
+2produces指定生产什么类型的内容，如produces="application/json"表示JSON类型的内容，Spring的根据相应的HttpMessageConverter进行请求内容区数据到@RequestBody注解的命令对象的转换，Spring会根据相应的HttpMessageConverter进行模型数据（返回值）到JSON响应内容的转换
+3以上内容，本章第×××节详述。
+ 
+URI模板变量增强：URI模板变量可以直接绑定到@ModelAttribute指定的命令对象、@PathVariable方法参数在视图渲染之前被合并到模型数据中（除JSON序列化、XML混搭场景下）。
+ 
+@Validated：JSR-303的javax.validation.Valid一种变体（非JSR-303规范定义的，而是Spring自定义的），用于提供对Spring的验证器（org.springframework.validation.Validator）支持，需要Hibernate Validator 4.2及更高版本支持；
+ 
+@RequestPart：提供对“multipart/form-data”请求的全面支持，支持Servlet 3.0文件上传（javax.servlet.http.Part）、支持内容的HttpMessageConverter（即根据请求头的Content-Type，来判断内容区数据是什么类型，如JSON、XML，能自动转换为命令对象），比@RequestParam更强大（只能对请求参数数据绑定，key-alue格式），而@RequestPart支持如JSON、XML内容区数据的绑定；详见本章的第×××节；
+ 
+Flash 属性 和 RedirectAttribute：通过FlashMap存储一个请求的输出，当进入另一个请求时作为该请求的输入，典型场景如重定向（POST-REDIRECT-GET模式，1、POST时将下一次需要的数据放在FlashMap；2、重定向；3、通过GET访问重定向的地址，此时FlashMap会把1放到FlashMap的数据取出放到请求中，并从FlashMap中删除；从而支持在两次请求之间保存数据并防止了重复表单提交）。
+Spring Web MVC提供FlashMapManager用于管理FlashMap，默认使用SessionFlashMapManager，即数据默认存储在session中
+
+DispatcherServlet中使用的特殊的Bean
+DispatcherServlet默认使用WebApplicationContext作为上下文，因此我们来看一下该上下文中有哪些特殊的Bean：
+1、Controller：处理器/页面控制器，做的是MVC中的C的事情，但控制逻辑转移到前端控制器了，用于对请求进行处理；
+2、HandlerMapping：请求到处理器的映射，如果映射成功返回一个HandlerExecutionChain对象（包含一个Handler处理器（页面控制器）对象、多个HandlerInterceptor拦截器）对象；如BeanNameUrlHandlerMapping将URL与Bean名字映射，映射成功的Bean就是此处的处理器；
+3、HandlerAdapter：HandlerAdapter将会把处理器包装为适配器，从而支持多种类型的处理器，即适配器设计模式的应用，从而很容易支持很多类型的处理器；如SimpleControllerHandlerAdapter将对实现了Controller接口的Bean进行适配，并且掉处理器的handleRequest方法进行功能处理；
+4、ViewResolver：ViewResolver将把逻辑视图名解析为具体的View，通过这种策略模式，很容易更换其他视图技术；如InternalResourceViewResolver将逻辑视图名映射为jsp视图；
+5、LocalResover：本地化解析，因为Spring支持国际化，因此LocalResover解析客户端的Locale信息从而方便进行国际化；
+6、ThemeResovler：主题解析，通过它来实现一个页面多套风格，即常见的类似于软件皮肤效果；
+7、MultipartResolver：文件上传解析，用于支持文件上传；
+8、HandlerExceptionResolver：处理器异常解析，可以将异常映射到相应的统一错误界面，从而显示用户友好的界面（而不是给用户看到具体的错误信息）；
+9、RequestToViewNameTranslator：当处理器没有返回逻辑视图名等相关信息时，自动将请求URL映射为逻辑视图名；
+10、FlashMapManager：用于管理FlashMap的策略接口，FlashMap用于存储一个请求的输出，当进入另一个请求时作为该请求的输入，通常用于重定向场景，后边会细述。
+
+
+Spring3.1使用新的HandlerMapping 和 HandlerAdapter来支持@Contoller和@RequestMapping注解处理器。
+新的@Contoller和@RequestMapping注解支持类：处理器映射RequestMappingHandlerMapping 和 处理器适配器RequestMappingHandlerAdapter组合来代替Spring2.5开始的处理器映射DefaultAnnotationHandlerMapping和处理器适配器AnnotationMethodHandlerAdapter，提供更多的扩展点
+
+HandlerMapping和HandlerAdapter的配置
+<!—- Spring3.1之前的注解 HandlerMapping -->  
+<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>  
+  
+<!—- Spring3.1之前的注解 HandlerAdapter -->  
+<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>  
+
+<!--Spring3.1开始的注解 HandlerMapping -->  
+<bean   
+class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>  
+<!--Spring3.1开始的注解 HandlerAdapter -->  
+<bean  
+class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>  
+
+@RequestMapping(value = "/hello") 
+@Controller @Service、@Repository
+
+@RequestMapping(value={"/test1", "/user/create"})：多个URL路径可以映射到同一个处理器的功能处理方法。
+@RequestMapping(value="/users/{userId}")：{×××}占位符， 请求的URL可以是 “/users/123456”或
+“/users/abcd”，通过6.6.5讲的通过@PathVariable可以提取URI模板模式中的{×××}中的×××变量
+
+@RequestMapping(value="/users/**")：可以匹配“/users/abc/abc”，但“/users/123”将会被【URI模板模式映射中的“/users/{userId}”模式优先映射到
+@RequestMapping(value="/product?")：可匹配“/product1”或“/producta”，但不匹配“/product”或“/productaa”;
+@RequestMapping(value="/product*")：可匹配“/productabc”或“/product”，但不匹配“/productabc/abc”;
+@RequestMapping(value="/product/*")：可匹配“/product/abc”，但不匹配“/productabc”;
+@RequestMapping(value="/products/**/{productId}")：可匹配“/products/abc/abc/123”或“/products/123”，也就是Ant风格和URI模板变量风格可混用
+
+正则表达式风格的URL路径映射
+
+@RequestMapping(value="/create", method = RequestMethod.GET)//②类级别的@RequestMapping窄化
+
+ @RequestMapping(params="create", method=RequestMethod.GET)
+ 表示请求中有“create”的参数名且请求方法为“GET”即可匹配，如可匹配的请求URL“http://×××/parameter1?create”；
+ //请求参数不包含 create参数名
+@RequestMapping(params="!create", method=RequestMethod.GET)
+请求数据中指定参数名=值
+@RequestMapping(params="submitFlag=create", method=RequestMethod.GET)  
+
+组合使用是“且”的关系
+@RequestMapping(params={"test1", "test2=create"}) 
+
+请求头数据中指定参数名!=值
+@RequestMapping(value="/header/test7", headers = "Accept!=text/vnd.wap.wml")：表示请求的URL必须为“/header/test7” 且 请求头中必须有“Accept”参数但值不等于“text/vnd.wap.wml”即可匹配
+
+
+http://sishuok.com/forum/blogPost/list/6233.html
+数据绑定
+       

@@ -1,0 +1,28 @@
+13 集合
+
+Java类库中，集合类的基本接口是Collection接口
+这个接口有2个基本方法
+public interface Collection<E> {
+	boolean add(E element);
+	Iterator<E> iterator();
+}
+
+迭代器
+使用迭代器对象依次访问集合中的元素
+Iterator接口包含3个方法
+public interface Iterator<E> {
+	E next();
+	boolean hasNext();
+	void remove();
+}
+
+可以使用for each更简练地遍历集合
+for each循环可以与任何实现了Iterable接口的对象一起工作
+
+TreeSet 有序集合， 排序时用树结构完成的(当前实现使用的是红黑树)
+
+集合的2个基本接口
+Collection, Map
+
+标记接口RandomAccess， 这个接口没有任何方法，可以用来检测一个特定集合是否支持高效的随机访问
+if(c instanceof RandomAccess) {}

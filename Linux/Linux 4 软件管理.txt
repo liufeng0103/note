@@ -1,0 +1,18 @@
+Linux 启动软件
+
+启动mysql
+/etc/init.d/mysqld start
+设为开机启动 
+chkconfig mysqld on 
+chkconfig --levels 235 mysqld on
+
+启动apache：
+/etc/init.d/httpd start
+service httpd start //启动apache服务
+设为开机启动:
+chkconfig httpd on 
+卸载Apache
+rpm -qa|grep httpd
+rpm remove xxx
+配置apache:
+vi /etc/httpd/conf/httpd.conf

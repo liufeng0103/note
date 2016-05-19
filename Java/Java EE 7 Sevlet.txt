@@ -1,0 +1,117 @@
+﻿Java EE 7 Servlets
+
+WebServlet
+一个servlet继承javax.servlet.http.HttpServlet使用@WebServlet注释
+@WebServlet("/account")
+public class AccountServlet extends javax.servlet.http.HttpServlet {
+	//...
+}
+
+servlet应用于多个URIs
+@WebServlet(urlPatterns={"/account", "/accountServlet"})
+public class AccountServlet extends javax.servlet.http.HttpServlet {
+	//...
+}
+
+@WebInitParam可以用来指定一组初始参数
+@WebServlet(urlPatterns="/account", initParms={@WebInitParam(name="type", value="checking")})
+public class AccountServlet extends javax.servlet.http.HttpServlet {
+	//...
+}
+
+HttpServlet接口有doxxx方法用来处理HTTP GET, POST, PUT, DELETE, HEAD, OPTIONS和TRACE请求。
+开发人员一般关心的是重写doGet和doPost方法。下面例子是用servlet来处理GET请求:
+@WebServlet("/account")
+public class AccountServlet extends javax.servlet.http.HttpServlet {
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+		//...
+	}
+}
+
+这段代码显示接受到HTTP GET请求后，显示一个简单的响应到客户端
+protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	try (PrintWriter out = response.getWriter()) {
+		out.println("<html><head>");
+		out.println("<title>MyServlet</title>");
+		out.println("</head><body>");
+		out.println("<h1>My First Servlet</h1>");
+		//. . .
+		out.println("</body></html>");
+	} finally {
+		//. . .
+	}
+}
+
+请求参数通过GET或POST方式发送。
+在GET请求里，参数以字符串键值对形式在URL中，这个是一个RUL例子：
+www.xxx.com/account?tx=10
+
+GET和POST请求都是通过HttpServletRequest获取这些参数
+protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	String txValue = request.getParameter("tx");
+}
+
+初始化参数定义servlet启动时的配置信息和初始化，获取上面通过@WebInitParam设置的初始参数
+String type = null;
+@Override
+public void init(ServletConfig config) throws ServletException {
+	type = config.getInitParameter("type");
+	//...
+}
+比如数据库连接初始化可以放在init方法中，释放链接可以放在destroy中
+
+你也可以不用注释的方式，而在web.xml中定义servlet
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+	<servlet>
+		<servlet-name>AccountServlet</servlet-name>
+		<servlet-class>org.sample.AccountServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AccountServlet</servlet-name>
+		<url-pattern>/account</url-pattern>
+	</servlet-mapping>
+</web-app>
+如果所有的servlet都用注释的方式定义，这里就可以不需要web.xml了，但是如果有些顺序的调用多个servlet就需要用到web.xml了
+
+如果在web.xml中设置metadata-complete为true，那么在servlet中定义的所有注释将都不会执行了
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	metadata-complete="true">
+	//...
+</web-app>
+
+多个servlet公用一个servlet context， ServletContext提供了servlet的执行环境的相关信息，还可以用来在容器间通信
+protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	ServletContext context = resquest.getServletContext();	
+	//...
+}
+
+一个servlet可以发送HTTP cookie，名为JSESSIONID，cookie可能需要设置为HttpOnly
+SessionCookieConfig config = request.getServletContext().getSessionCookieConfig();
+config.setHttpOnly(true);
+
+HttpSession结构用来查看session中的多个信息，创建绑定session
+创建session对象
+protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	HttpSession session = request.getSession(true);
+	//. . .
+}
+session.setAttribute和session.getAttribute方法来绑定对象到session
+
+一个servlet可能需要将请求传递给另一个servlet来做更多的处理：
+protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	request.getRequestDispatcher("bank").forward(request, response);
+	//. . .
+}
+
+动态绑定servlet
+public class MyInitializer implements ServletContainerInitializer {
+	@Override
+	public void onStartup (Set<Class<?>> clazz, ServletContext context) {
+		ServletRegistration.Dynamic reg = context.addServlet("MyServlet", "org.example.MyServlet");
+		reg.addMapping("/myServlet");
+	}
+}
+
+参考 [Java.EE.7.Essentials(2013.8)].Arun.Gupta

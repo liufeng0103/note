@@ -1,0 +1,159 @@
+Linux 第5章 首次登入Linux与在线求助man page
+
+1. 重启X Window
+Ctrl + Alt + Backspace
+
+2. X window与文本模式的切换
+[Ctrl] + [Alt] + [F1]~[F6]组合键 文字接口登陆tty1-tty6终端机
+[Ctrl] + [Alt] + [F7] ：图形接口桌面
+
+如果你是以纯文本环境启动Linux的，默认tty7是没有东西的。在tty1~tty6的任意一个终端接口使用你的账号登入后使用startx来启动X Window
+
+如果你想要让Linux在下次开机时使用纯文本环境(run level 3)来登入， 只要修订一下/etc/inittab这个档案的内容，就能够在下次重新启劢时生效了
+
+3. [luis@localhost home]$
+~表示home目录
+$表示普通用户，#表示root用户
+欢迎讯息的内容 ~和$的内容其实是来自于/etc/issue这个档案
+
+4. 使用shell命令
+命令太长的时候，可以使用反斜杠 (\) 来跳脱[Enter]符号，使指令连续到下一行。 注意！反斜杠后就立刻接特殊字符，才能跳脱！
+
+5. 系统语言支持
+1. 显示目前所支持的语言 
+[vbird@www ~]$ echo $LANG
+2. 修改语言成为英文
+[vbird@www ~]$ LANG=en_US
+# 注意到上面的指令中没有空格符，且英文为en_US才对喔！
+
+6. 基础指令的操作
+显示日期时间的指令： date
+显示日历的指令： cal
+简单好用的计算器： bc
+date
+程序显示出『2009/08/17』这样的日期显示
+[vbird@www ~]$ date +%Y/%m/%d 
+2009/08/17 
+[vbird@www ~]$ date +%H:%M 
+17:04
+[luis@localhost ~]$ date +%Y/%m/%d" "%H:%M
+2013/12/15 07:21
+
+cal
+显示全年日历
+cal 2013
+显示某个月
+cal 6 2013
+
+bc
++ 加法
+- 减法
+* 乘法
+/ 除法
+^ 指数
+% 余数
+如果要输出小数点下位数，那举就必须要执行 scale=number
+scale=3 <==没错！就是这里！！ 
+1/3 .333
+quit退出计算器
+
+7. 重要的几个热键[Tab], [ctrl]-c, [ctrl]-d
+tab
+[vbird@www ~]$ ca[tab][tab]
+cadaver callgrind_control capifax card
+cal cameratopam capifaxrcvd case caller 
+cancel capiinfo cat callgrind_annotate 
+cancel.cups captoinfo catchsegv 
+所有以ca为开头的指令都被显示出来啦
+
+[vbird@www ~]$ ls -al ~/.bash[tab][tab] 
+.bash_history .bash_logout .bash_profile .bashrc
+在该目录下面所有以 .bash 为开头的文件名都会被显示出来了呢
+
+[Tab] 接在一串指令的第一个字的后面，则为命令补全；
+[Tab] 接在一串指令的第二个字以后时，则为『档案补齐』！
+
+[Ctrl]-c 
+中断程序
+
+[Ctrl]-d
+这个组合按键通常代表着： 『键盘输入结束(End Of File, EOF 戒 End Of Input)』的意思！ 
+另外，他也可以用来取代exit的输入呢！例如你想要直接离开文字接口，
+可以直接按下[Ctrl]-d就能够直接离开了(相当亍输入exit啊！)
+
+8. Linux系统的在线求助man page和info page
+在文本模式下，你可以直接按下两个[Tab]按键，看看总共有多少指令
+
+man page
+man是manual(操作说明)的简写
+『DATE(1)』(1)代表的是『一般用户可使用的指令』的意思
+
+代号 代表内容
+1 用户在shell 环境中可以操作的指令或可执行文件
+2 系统核心可呼叫的函数与工具等
+3 一些常用的函数(function)与函式库(library)，大部分为C 的函式库(libc)
+4 装置档案的说明，通常在/dev 下的档案
+5 配置文件或者是某些档案的格式
+6 游戏(games)
+7 协议等，例如Linux 文件系统、网络协议、ASCII code 等等的说明
+8 系统管理员可用的管理指令
+9 跟kernel 有关的文件
+上述的表格内容可以使用『man 7 man』来更详细的取得说明
+
+man null
+
+代号 内容说明 
+NAME 简短的指令、数据名称说明 
+SYNOPSIS 简短的指令下达语法(syntax)简介 
+DESCRIPTION 较为完整的说明，这部分最好仔细看看！ 
+OPTIONS 针对 SYNOPSIS 部分中，有列举的所有可用的选项说明 
+COMMANDS 当这个程序(软件)在执行的时候，可以在此程序(软件)中下达的指令 
+FILES 这个程序或数据所使用或参考或连结到的某些档案 
+SEE ALSO 可以参考的，跟这个指令或数据有相关的其他说明！ 
+EXAMPLE 一些可以参考的范例 BUGS 是否有相关的臭虫！
+
+man通常是放在/usr/share/man这个目录里头
+修改/etc/man.config以透过修改他的man page搜寻路径来改善这个目录的问题
+
+whatis 相当于man -f
+apropos 相当于man -k
+
+info page
+在线求助方法
+info指令的文件默认放置在/usr/share/info
+
+其它有用文件
+/usr/share/doc 目录下有好多说明文档
+
+9. 简单文本编辑器：nano
+nano text.txt
+
+10. 正确的关机方法
+1. 观察系统的使用状态
+who 查看目前谁在线
+netstat -a 查看网络联机装态
+ps -aux 查看后台运行的程序
+2. 通知在线使用者关机的时刻
+3. 正确关机指令
+shutdown 与 reboot
+
+sync 将数据同步写入硬盘中的指令
+shutdown 惯用的关机指令
+reboot，halt，poweroff 重新启动，关机
+
+shutdown
+[root@www ~]# /sbin/shutdown [-t 秒] [-arkhncfF] 时间 [警告讯息]
+[root@www ~]# shutdown -h now 立刻关机，其中 now 相当亍时间为 0 的状态 
+[root@www ~]# shutdown -h 20:25 系统在今天的 20:25 分会关机，若在21:25才下达此指令，则隔天才关机 
+[root@www ~]# shutdown -h +10 系统再过十分钟后自动关机 
+[root@www ~]# shutdown -r now 系统立刻重新启动
+[root@www ~]# shutdown -r +30 'The system will reboot' 再过三十分钟系统会重新启动，幵显示后面的讯息给所有在在线的使用者
+[root@www ~]# shutdown -k now 'This system will reboot' 仅发出警告信件的参数！系统并不会关机啦！吓唬人！
+
+切换执行等级： init
+run level 0：关机
+run level 3：纯文本模式
+run level 5：含有图形接口模式
+run level 6：重新启动
+
+init 0 关机 

@@ -1,0 +1,87 @@
+Swing
+
+1. 窗口
+JFrame
+setTitle("JFrame title"); 	// 设置窗口标题
+setSize(100, 100);			// 设置窗口大小
+setJMenuBar(menuBar);		// 设置文件栏
+
+2. 文件栏
+JMenuBar	// 文件栏
+JMenu		// 文件栏选项
+JMenuItem	// 文件栏子选项
+
+使用
+JMenu fileMenu = new JMenu("File");
+JMenuItem openItem = new JMenuItem("Open");
+fileMenu.add(openItem);
+JMenuItem exitItem = new JMenuItem("Exit");
+fileMenu.add(exitItem);
+JMenuBar menuBar = new JMenuBar();
+menuBar.add(fileMenu);
+
+3. 文件选择对话框
+JFileChooser	// 文件选择
+FileFilter		// 文件过滤
+
+使用
+JFileChooser chooser = new JFileChooser();
+chooser.setCurrentDirectory(new File(".")); 									// 设置默认打开的目录， .表示项目所在当前目录
+chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {				// 设置添加文件过滤
+	public boolean accept(File f) {
+	   return f.isDirectory() || f.getName().toLowerCase().endsWith(".xml"); 	// 显示文件夹或者xml文件
+	}
+
+	public String getDescription() {
+	   return "XML files";	// 对话框文件类型的描述
+	}
+});
+int r = chooser.showOpenDialog(this);			// 显示对话框
+if (r != JFileChooser.APPROVE_OPTION) return;	// 对话框是否接受到用户选择
+String name = chooser.getSelectedFile().getPath(); // 获取文件路径
+final File file = chooser.getSelectedFile();	// 获取选择的文件
+		 
+4. 树
+JTree
+TreeModel
+DefaultTreeCellRenderer
+
+使用
+
+5. 下拉列表框
+JComboBox
+
+使用
+JComboBox typeCombo = new JComboBox(new Object[] { "STRING", "NODE", "NODESET", "NUMBER", "BOOLEAN" });
+typeCombo.setSelectedItem("STRING");
+
+6. 文本框
+JTextField
+JTextArea
+
+使用
+JTextArea docText = new JTextArea(10, 40);
+new JScrollPane(docText);
+
+7. 标签
+JLabel
+
+使用 
+JLabel label = new JLabel();
+label.setIcon(new ImageIcon("test.jpg"));	// 标签显示图片
+
+
+
+
+
+
+
+
+主GUI调用方法
+EventQueue.invokeLater(new Runnable() {
+	public void run() {
+		JFrame frame = new DOMTreeFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+   }
+});

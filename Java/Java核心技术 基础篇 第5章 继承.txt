@@ -1,0 +1,110 @@
+﻿Java核心技术-基础知识 学习笔记
+第5章 继承
+5.1.3动态绑定
+5.1.4阻止继承：final类和方法
+final类中的所有方法自动成为final方法，不包括属性
+5.1.5强制类型转换
+在进行类型转换之前，先查看下是否能够成功转换。这个过程简单实用instanceof运算符
+if(staff[1] instanceof Manager){
+	boss = (Manager)staff[1];
+}
+一般情况下尽量少用类型转换和instanceof运算符
+5.1.6抽象类
+5.1.7收保护访问
+private-仅对本类可见
+public-对所有类可见
+protected-对本包和所有子类可见
+默认-对本包可见
+
+5.2Object：所有类的超类
+5.2.1Equals方法
+getClass方法将返回一个对象所属的类
+5.2.2相等测试与继承
+数组可以使用Arrays.equals方法检测相应数组元素是否相等
+@Override对覆盖方法进行标记
+5.2.3HashCode方法
+Object默认的hashCode方法，其值为对象的存储地址
+5.2.4ToString方法
+可以遵循这样的格式定义toString：类名字，+一对方括号括起来的属性值
+只要对象和一个字符串通过操作符+连接起来，java编译就会自动地调用toString方法
+在调用x.toString的时候可以用“”+x代替
+
+5.3泛型数组列表
+ArrayList如果清楚估计出存储元素数量
+ensureCapacity(100)方法 也可以把初始容量传递给构造器 new ArrayList(100);
+trimToSize方法将存储大小调整为当前元素所需存储空间数目。垃圾回收器将回收多余的存储空间。
+5.3.1访问ArrayList元素
+add(xx);set(i,xx);get(i)
+list.toArray(a)方法将数组元素拷贝到一个数组中
+add(i,xx)在中间插入元素
+remove（xx）删除一个元素
+5.3.2类型化与原始数组列表的兼容性
+
+5.4对象包装器与自动打包
+
+this跟super不太一样，super指示编译器调用父类的方法
+
+如果子类的构造器没有显式的调用父类的构造器，则自动调用超类的默认构造器。如果超类没有不带参数的构造器，在子类中又没有显式调用父类其它构造器，则编译器将报错
+
+一个对象变量可以引用多种实际类型的现象被称为多态
+在运行时能自动地选择调用哪个方法的现象称为动态绑定
+
+子类方法不能低于父类方法的可见性
+
+在进行类型转换之前，可以通过instanceof判断是否能够成功转换
+if(staff[1] instanceof Manager) {
+	boss = (Manager)staffp[1];
+}
+只能在继承层次内进行类型转换
+在将超类转换为子类前用instanceof进行检查
+少用类型转换和instanceof
+
+只有基本类型不是对象，其它都是扩展Object的，甚至基本类型的数组
+
+hashCode方法定义在Object类中，因此每个对象都有一个默认散列码，其值为对象的存储地址
+
+重新定义equals方法就必须重新定义hashCode方法，以便用户将对象插入散列表中
+
+绝大多数toString方法遵循这样的格式：类的名字，虽有一个方括号括起来的域值
+getClass().getName() + "[name="", ...]"
+
+在调用x.toString()的地方可以用""+x替代,如果x是基本类型，这个语句可以照样执行
+
+Object定义了toString方法，打印类名和散列码
+
+打印数组Arrays.toString(a),多为数组Arrays.deepToString(a)
+
+ArrayList如果一旦能够确认数组列表大小不再变化可以调用trimToSize方法，这个方法将存储区大小调整问当前元素大小，垃圾回收器回收多余空间
+
+list.set(0,"abc"),set只能用来替换数组中元素不能用来添加
+
+想编写一个修改数值参数值得方法，需要使用org.omg.CORBA中定义的持有holder类型，包括IntHolder
+
+参数个数可变的方法
+void test(Object... args)
+Object... 可以看做是Object[]
+
+枚举类型page194
+
+反射195
+反射主意反射的类是否具有不带参数的构造器
+
+第6章 接口与内部类
+如果想使用Arrays的sort方法对数组排序，数组元素必须实现Comparable接口
+
+接口中的方法默认都是public abstract的所以可以不用明确写出
+
+可以使用instanceof检查一个对象是否实现某个特定的接口
+anObject instanceof Comparable
+
+接口中的域将自动设为public static final， java规范建议不要书写多余的关键字。具体怎么用看项目规范吧
+
+用Object的clone方法拷贝的类只有基本数据类型域，那没有问题，但如果类中有子对象引用就不能用默认的clone方法了
+这种拷贝属于浅拷贝，克隆没有包含对象的内部对象。如果子对象不可变，浅拷贝没有问题
+clone page 226
+
+即使clone的默认实现能够满足需求，也应该实现Cloneable接口，将clone定义为public，并调用super.clone（）。
+
+ActionListener listener = new TimePrinter();
+Timer t = new Timer(10000, listener);
+t.start();

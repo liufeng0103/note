@@ -1,0 +1,27 @@
+Java核心技术-基础(第8版) 
+第3章 Java基础的程序设计结构
+
+// 控制台输入, Scanner行扫描器
+Scanner in = new Scanner(System.in);	
+String name = in.nextLine(); 	// 等待输入，赋值结果
+int age = in.nextInt();			// 读取下一次输入为一个int型，但不移动行数
+
+Math.random(); // 0-1的随机数
+
+int[] result = new int[10];
+Arrays.sort();	// 数组排序
+
+BigInteger i = BigInteger.valueOf(1);	// 等表示任意长度的整数
+i.divide(BigInteger.valueOf(2)); 		// 除
+i.multiply(BigInteger.valueOf(3));		// 乘
+
+第4章 对象和类
+
+GregorianCalendar d = new GregorianCalendar(); 	// 日历类
+int today = d.get(Calendar.DAY_OF_MONTH);		// 日期
+int month = d.get(Calendar.MONTH);				// 月份
+int weekday = d.get(Calendar.DAY_OF_WEEK);		// 星期
+int firstDayOfWeek = d.getFirstDayOfWeek();		// 获取每星期的第一天，美国周日是第一天
+
+Random generator = new Random();
+int i = generator.nextInt(10000);	// 0-9999

@@ -1,0 +1,102 @@
+﻿Java核心技术-基础知识 学习笔记
+第6章 接口与内部类
+
+6.1接口
+接口中所有的方法自动地属于public
+接口中的属性自动地设为public static final
+
+instanceof检查一个对象是否属于某个特定类，也可以检查一个对象是否属于某个特定接口
+
+6.1.2 接口与抽象类
+多继承会让语言变得非常复杂(如C++)，效率也会降低(如Eiffel)
+
+6.2对象克隆
+默认的clone是浅拷贝，并没有克隆对象中的内部对象，意味着只能拷贝基本类型
+
+对于浅拷贝，如果原始对象与克隆对象共享的子对象是不可变的，将不会产生问题，像String
+
+子对象可变，必须重写clone方法实现深拷贝，步骤
+1)实现Cloneable接口
+2)使用public重写定义clone方法
+
+Object的clone方法是protected的，所有子类只能调用受保护的clone方法克隆自己。为此必须重定义public的clone方法，才能让所有的方法克隆对象
+
+及时默认clone可以满足需求，也应该实现Cloneable接口，将clone重定义为public，并调用super.clone()
+
+sample of deep clone:
+class Employee implements Cloneable{
+	public Employee clone() throws CloneNotSupportedException{
+		// call Object.clone();
+		Employee cloned = (Employee)super.clone();
+		
+		// clone nutable fields
+		cloned.hireDay = (Date)hireDay.clone();
+		
+		return cloned;
+	}
+}
+clone中含有没有实现Cloneable接口的对象，Object的clone方法就会抛出CloneNotSupportedException异常
+
+多有数组类型包含一个public的clone方法，可以利用这个方法创建一个包含所有数据元素拷贝的新数组
+
+6.3 接口与回调
+回调(callback)是一种常见的程序设计模式， 这种模式可以知道某个特定模式发生时应该采取的动作。
+
+在java.swing包中有一个Timer类,用它可以到达给定时间间隔发出通告。传递的对象必须实现了ActionListener类
+
+class TimePrinter implements ActionListener{
+	public void actionPerformed(ActionEvent event){
+		Date now = new Date();
+		print(now);
+		Toolkit.getDefaultTookkit().beep();
+	}
+}
+ActionListener listener = new TimePrinter();
+Timer t = new Timer(10000,listener);
+t.start();
+
+java.util.Timer主要用于调度后台任务， 与swing.Timer无关
+
+查看JOptionPane,Timer,Toolkit API
+
+6.4内部类
+使用内部类的3点原因：
+a. 内部类的方法可以访问该类定义所在作用域的数据，包括私有数据
+b. 内部类可以对同一包中的其他类隐藏起来
+c. 想要定义一个回调函数且不想编写大量代码，使用匿名(anonymous)内部类比较便捷
+
+当主类实例化后，内部类并不没有也被实例化
+
+内部类可以访问外围类的对象的属性，是因为内部类的对象总有一个隐式引用，指向了创建它的外部类对象
+
+只有内部类可以设为私有的
+
+6.4.3内部类是否有用，必要和安全
+
+6.4.4局部内部类
+在一个方法中定义局部类
+局部类不能用public或private
+局部类的一个优势，对外部世界完全隐藏
+
+6.4.5由外部方法访问final变量
+局部类的另一个优点，可以访问局部变量，不过局部变量必须声明final的
+
+6.4.6匿名内部类
+由于构造器必须和类名相同，匿名内部类没有类名，所以匿名类不能有构造器，取而代之的是将构造器参数传递给超类构造器。
+
+6.4.7 静态内部类
+内部类对象不需要引用任何其他的对象，可以将内部类声明为static
+class ArrayAlg{
+	public static class Pair{
+	}
+}
+只有内部类可以声明为static
+
+声明在接口中的内部类自动成为static和public
+
+6.5代理
+利用代理可以在运行时创建一个实现了一组给定接口的新类。这种功能只有在编译时无法确定实现哪个接口是才有必要使用
+
+不知道是翻译的不好还是理解能力差，不是很明白
+
+

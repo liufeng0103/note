@@ -1,0 +1,516 @@
+第3章 Java基本的程序设计结构
+
+1. Java对大小写敏感
+
+2. 类名标准命名规范：以大写字母开头的名词(骆驼命名法)
+
+3. main方法没有给操作系统返回“退出代码”。如果main正常退出，那么java应用程序的退出代码为0，表示成功地运行了程序。如果希望终止时返回其它代码，那就需要调用System.exit方法
+
+4. Java的方法，在C++中叫函数，方法的参数，有的程序叫变元
+
+5. 3种注释
+	// 行注释
+	/* */ 多行注释
+	/**	*/ 这种注释可以用来自动生成文档
+	
+6. 数据类型
+Java是强类型语言，这意味着必须为每一个变量声明一种类型。
+Java中一共有8种基本类型，其中4种整形，2种浮点，1种用于表示Unicode编码的字符单元的字符类型char和一种表示真值得boolean类型
+Java有一个能表示任意精度的算术包，称为“大数值”(big number)。它不是新的类型，而是一种Java对象
+
+7. 整形
+类型	存储需求	取值范围
+int		4字节		-2 147 438 648 到 2 147 483 647(正好超过20亿)
+short	2字节		-32 768 到 32767
+long	8字节		-9 223 372 036 854 775 808 到 9 223 372 036 854 775 807
+byte	1字节		-128 到 127
+
+int最常用
+long 例如表示地球人口，就需要long类型了
+byte和short 用于特定场合，例如，底层的文件处理或者需要控制占用存储空间量的大数组
+
+长整形有一个后缀L(如40000000000000L)
+16进制数值有一个前缀0x(如0xCAFE)
+8进制有一个前缀0(如010对应是八进制的8)，8进制表示容易混淆，不建议使用
+
+8. 浮点类型
+类型	存储需求	取值范围
+float	4字节		大约 +—3.402 823 47E+38F(有效位数为6到7位)
+double	8字节		大约 +-1.797 693 134 862 315 70E+308(有效位数15位)
+
+绝大部分应用程序都采用double类型
+很少情况适合使用float类型，如需要快速处理单精度数据，或者需要存储大量数据
+
+float有一个后缀F(如3.402F)，没有后缀F的浮点值(3.402)默认为double类型
+double也可以在后面加后缀D(如3.402D)
+
+3种表示溢出和出错情况的特殊浮点数值：
+正无穷大
+负无穷大
+NaN(不是一个数字)
+如一个整数除以0结果为正无穷大。计算0/0或者负数的平方根结果为NaN
+
+Double.POSITIVE_INFINITY
+Double.NEGATIVE_INFINITY
+Double.NaN
+分别表示这3中特殊的值，实际应用中很少遇到
+
+不能这样检测一个特定值是否等于Double.NaN
+if(x == Double.NaN) // is never true
+所有“非数值”的值都认为是不相同的，然而可以使用Double.isNaN方法
+if(Double.isNaN(x)) //check whether x is "not a number"
+
+警告：浮点数值不适合用于禁止出现舍入误差的金融计算中。如System.out.println(2.0-1.1)将打印出0.8999999999999999999，而不是人们想象的0.9.
+主要原因是浮点数值采用二进制系统表示，而在二进制系统中无法进去表示分数1/10.就好像在10进制系统中无法精确表示1/3一样。
+如果在数值计算中不含有任何舍入误差，就应该使用BigDecimal类
+
+9. char类型
+了解Unicode编码
+char类型用于表示单个字符。通常用来表示字符常量。如‘A’的编码为65
+在Java中，char类型用UTF-16编码描述一个代码单元
+建议不要在程序中使用char类型，除非需要对UTF-16代码单元进行操作。最好将需要处理的字符串用抽象数据类型表示
+
+10.boolean类型
+boolean类型的两个值：false和true。整数型和布尔之间不能进行相互转换
+
+11. 变量
+变量名必须是以字母开头由字母和数字构成的序列。字母包括‘A’-‘Z’，‘a’-‘z’，‘_’或在某种语言中代表字母的任何Unicode字符
+如果想知道哪些Unicode字符属于Java中的字母，可以使用Character类的isJavaIdentifierStart和isJavaIdentifierPart方法检测
+
+12. 变量初始化
+声明一个变量后，必须用赋值语句对变量进行显式的初始化
+在Java中可以将声明尽可能地靠近第一次使用的地方，这是一种良好的程序编写风格。
+
+13. 常量
+用final声明常量
+final表示这个变量只能被赋值一次，一旦被赋值之后，就不能再更改了。
+常量名用大写
+在Java中，经常希望某个常量可以在一个类中的多个方法中使用，称为类常量，用static final设置类常量
+const是Java保留的关键字，目前没有使用
+
+14. 运算符
++ - * / %(求余有时称为取模)
+整数被0除将产生一个异常
+浮点被0除将会得到无穷大或NaN结果
+
+简化书写二元算术运算符
+x += 4;等价于x = x + 4;
+
+了解浮点计算的问题，strictfp
+
+== != < > <= >=
+&& 与
+|| 或
+！ 非
+&&和||是按照“短路”方式求值得，如果第一个操作已经确定表达式的值，第二个操作就不必计算了
+这种方式可以避免一些错误发生如：
+x != 0 && 1/x > x + y
+
+Java支持三元操作?:如：
+条件为真时计算第一个表达式，否则计算第2个表达式
+x < y ? x : y
+返回x和y中较小的那个值
+
+15. 位运算符
+在处理整形数值时，可以直接对组成的整形数值的各个位进行操作。这意味着可以使用屏蔽技术获得整数的各个位
+& 与
+| 或
+^ 异或
+~ 非
+
+n是一个整形变量，并且用二进制表示n从右数第4位为1那么
+int fourthBitFromRight = (n&8)/8
+返回1，否则返回0.通过运用2的幂次方的&运算可以将其他位屏蔽掉，而只保留其中的某一位
+&和|应用与布尔值，不按短路方式计算，一定要计算两个操作数的值
+
+>> <<运算符将二进制进行右移左移操作
+>>> 将用0填充高位
+>> 用符号位填充高位
+没有<<<运算符
+
+16. 数学函数与常量
+Math类中包含这种数学函数
+
+求平方根
+Math.sqrt(x);
+
+在Java中乜有幂运算，所以借助pow方法
+double y = Math.pow(x, a);
+y的值为x的a次幂，double参数类型，返回double
+
+常用三角函数
+sin
+cos
+tan
+atan
+atan2
+
+指数函数以及它的反函数--自然对数
+exp
+log
+
+用于表示PI和e常量的近似值
+PI
+E
+
+在Math类中，为了达到最快性能，所有方法都使用计算机浮点单元中的例程
+如果完全可预测结果比速度更重要的话，应该是用StrictMath类
+它使用‘自由发布的Math库’实现算法，确保所有平台得到相同结果
+
+16. 数值类型之间转换
+有3中转换会损失精度
+int -> float
+int -> double
+long -> double
+
+2中不同类型计算
+如果2个数中有一个是double类型，另一个就转换为double
+否则，如果有float类型，另一个就转float
+否则，如果有long类型，另一个就转long
+否则，连个操作数都将转为int型
+
+强制类型转换
+double x = 9.997;
+int nx = (int)x;
+为了得到最接近的整数可以使用Math.round方法,四舍五入
+int nx = (int)Math.round(x);
+
+运算符优先级
+参考优先级表格
+
+17. 枚举类型
+enum Size{ SMALL, MEDIUM, LARGE, EXTRA_LARGE};
+现在可以声明这样一种类型变量
+Size s= Size.MEDIUM;
+
+15. 字符串
+Java字符串就是Unicode字符序列
+String
+
+子串
+substring方法可以从一个较大的字符串提取出一个字串
+String greeting = “Hello”；
+String s = greeting.substring(0, 3);
+s为Hel
+substring有一个优点，容易计算字串的长度，3 - 0 = 3;
+
+16. 拼接
+
+17. 不可变字符串
+
+18. 检测字符串是否相等
+使用equals方法
+字符串不区分大小写比较equalsIgnoreCase方法
+
+==不能比较2个字符串相等，它比较的是2个字符串是否放在同一位置上
+只有字符串常量是共享的，而+或substring等操作产生的结果并不是共享的
+
+还可以使用Java的compareTo方法与C的strcmp函数完全类似
+if(greeting.compareTo("Hello") == 0)
+
+19. 字符串API
+查看API文档
+
+20. 构建字符串
+如果需要用许多小段字符串构建一个字符串，使用StringBuilder
+
+21. 读取输入
+Scanner in = new Scanner(System.in);
+String name = in.nextLine();
+int age = in.nextIn();
+
+因为输入可见，所以Scanner类不适合从控制台读取密码，java6特别引入Console类实现这个目的
+Console cons = System.console();
+String username = cons.readLine("User name: ");
+char[] passwd = cons.readPassword("Password: ");
+
+Console对象处理不如采用Scanner方便，每次只能读取一行输入，而没有能够读一个单词，一个数值的方法
+
+22. 格式化输出
+参考用于pringf的转换符
+
+3.7.3 文件输入与输出
+写文件
+PrintWriter out = new PrintWriter("myfile.txt");
+
+路径位置
+String dir = System.getProperty("user.dir");
+
+查看Scanner类
+查看PrintWriter类
+查看File类
+
+
+3.8.6 中断控制流语句
+break
+可以用于
+switch， for 甚至 if
+
+3.9 大数值
+BigInteger和BigDecimal，任意精度的整数和浮点运算
+
+普通数值转换成大数值
+BigInteger a = BigInteger.valueOf(100);
+
+用add和multiply方法代替+ *
+BigInteger c = a.add(b); // c = a + b;
+BigInteger d = c.multiply(b.add(BigInteger.valueOf(2))); // d = c * (b + 2)
+
+BigInteger文档
+BigInteger add(BigInteger other)
+BigInteger subtract(BigInteger other)
+BigInteger multiply(BigInteger other)
+BigInteger divide(BigInteger other)
+BigInteger mod(BigInteger other)
+
+int compareTo(BigInteger other)
+
+static BigInteger valueOf(long x)
+
+3.10 数组
+声明数组
+int[] a;
+初始化数组
+int[] a = new int[100];
+
+3.10.1 For each循环
+for(int eletement : a){
+}
+
+打印数组中的所有值
+Arrays.toString()；
+
+3.10.2 数组初始化以及匿名数组
+int[] a = {2,3,4};
+匿名数组
+new int[]{17,19,23}
+
+3.10.3数组拷贝
+int[] a = {1,2,3};
+int[] b = a;
+两个变量引用同一个数组
+
+如果希望数组的所有值拷贝到新的数组中去就要用Arrays的copyOf
+int[] b = Arrays.copyOf(a, a.length);
+第二个参数为新数组长度， 这个方法通常用来增加数组大小
+如果长度大于拷贝的数组长度，就补0为int， false为boolean。相反，只拷贝前面元素
+
+在java6之前用System的arraycopy方法将一个数组拷贝到另一个数组
+System.arraycopy(from, fromIndex, to, toIndex, count);
+
+3.10.4 命令行参数
+每个java应用程序都带有一个String arg[]参数的main方法
+public class Message{
+	public static void main(String[] args){
+		if("-h".equals(args[0])){
+		
+		}
+	}
+}
+命令行指令
+java Message -h world
+arg[0] 是“-h”
+arg[1] 是“world”
+
+3.10.5数组排序
+Arrays.sort(a);
+这个方法使用了优化的快速排序算法
+
+Math.random方法返回一个0到1之间的随机浮点数(0<= r < 1), 用n乘以这个浮点数得到0到n-1的随机数
+
+程序，从49个数值中抽取6个
+/**
+* This program demonstrates array manipulation
+*/
+public class LotteryDrawing{
+	public static void main(String[] args){
+		Scanner in = new Scanner(System.in);
+		
+		System.out.print("How many numbers do you need to draw? ");
+		int k = in.nextInt();
+		
+		System.out.print("What is the highest number you can draw? ");
+		int n = in.nextInt();
+		
+		// fill an array with numbers 1,2,3....n
+		int[] numbers = new int[n];
+		for(int i = 0; i < numbers.length; i++)
+			numbers[i] = i + 1;
+			
+		// draw k numbers and put them into a second array
+		int[] result = new int[k];
+		for(int i = 0; i < result.length; i++){
+			// make a random index between 0 and n-1
+			int r = (int)(Math.random() *　ｎ);
+			
+			// pick the element at the random location
+			result[i] = numbers[r];
+			
+			// move the last element into the random location
+			number[r] = numbers[n - 1];
+			n--;
+		}
+		
+		// print the sorted array
+		Arrays.sort(result);
+		System.out.println("Bet the following combination, It'll make you rich!");
+		for(int r : result)
+			System.out.println(r);
+	}
+}
+
+查看Arrays类文档
+toString(type[] a)
+copyOf(type[] a, int length)
+copyOf(type[] a, int start, int end)
+sort(type[] a)
+int binarySearch(type[] a, type v)
+int binarySearch(type[] a, int start, int end, type v)
+void fill(type[] a, type v)
+equals(type[] a, type[] b)
+
+查看System类文档
+void arraycopy(Object from, int fromIndex, Object to, int toIndex, int count)
+
+3.10.6 多维数组
+double[][] balances = new double[NYEARS][NRATES];
+int[][] magicSquare = {
+						{1,2,3,4},
+						{5,6,7,8}
+						};
+
+快速打印二维数组
+System.out.println(Arrays.deepToString(a));
+
+/**
+* This program shows how to store tabular data in a 20 array
+*/
+public class CompoundInterest{
+	public static void main(String[] args){
+		final double STARTRATE = 10;
+		final int NRATES = 6;
+		final int NYEARS = 10;
+		
+		// set interest rates to 10 ... 15%
+		double[] interestRate = new double[NRATES];
+		for(int j = 0; j < interestRate.length; j++)
+			interestRate[j] = (STARTRATE + j) / 100.0;
+			
+		double[][] balances = new double[NYEARS][NRATES];.
+		
+		// set initial balances to 10000
+		for(int i = 1; i < banlances.length; i++){
+			for(int j = 0; j < banlances[i].length; j++){
+				// get last year's balances form previous row
+				double oldBalance = balances[i - 1][j];
+				
+				// compute interest
+				double interest = oldBanlance * interestRate[j];
+				
+				// compute this year's balances
+				balances[i][j] = oldBalance + interest;
+			}
+		}
+		
+		// printe one row of interest rates
+		for(int j = 0; j <　interestRate.length; j++)
+			System.out.printf("%9.0f%%", 100 * interestRate[j]);
+		
+		System.out.println();
+		
+		// print balance talbe
+		for(double[] row : banlances){
+			// print table row
+			for(double b : row
+				System.out.printf("%10.2f", b);
+				
+			System.out.println();
+		}
+	}
+}
+
+3.10.7 不规则数组
+
+
+float	4字节	有效位6-7位
+double	8字节	有效位15位
+
+2进制无法精确表示1/10
+
+BigDecimal类处理高精度计算
+
+强烈建议不要使用char类型,除非却是需要对UTF-16代码元进行操作，可以用字符串进行操作
+
+將类或方法标记为strictfp,將使用严格浮点计算
+
+使用Math方法，可以再文件顶部导入
+import static java.lang.Math.*;
+如果完全预测结果比运行速度重要，可以使用StrictMath类
+
+枚举
+enum Size{SMALL, MEDIUM, LARGE};
+Size s = Size.MEDIUM;
+
+代码点与代码单元
+1. 字符数据类型是一个采用UTF-16编码表示Unicode代码点的代码单元，大多数字符用一个单元表示，辅助字符需要一对代码单元
+2. length方法返回代码单元数量
+3. 要想得到实际长度，即代码点数量，可以调用
+	int cpCount = "".codePointCount(0, "".length());
+4. 要想得到第i个代码点，应该使用下列语句
+	int index = "".offsetByCodePoints(0, i);
+	int cp = "".codePointAt(index);
+5. 遍历字符串每一个代码点
+	int cp = "".codePointAt(i);
+	if(Character.isSupplementaryCodePoint(cp))
+		i += 2;
+	else
+		i++;
+		
+JDK6引入的Console类可以读取一个密码
+Console cons = System.console();
+String username = cons.readLine("User name: ");
+char[] passwd = cons.readPassword("Password: ");
+
+对于任意实现Formatable接口的对象，都将调用formatTo方法，否则调用toString方法
+
+String.format方法创建一个格式化的字符串
+String msg = String.format("%d", age);
+
+还能格式化Date对象，corejava page 69
+
+启动路径
+String dir = System.getProperty("user.dir");
+
+JDK6为止，switch只支持整数和枚举常量。 JDK7支持字符串
+
+用break跳出多层循环
+read_data:
+while() {
+	for() {
+		break read_data;
+	}
+}
+对于这种语句，代码需要检测循环是正常结束，还是break跳出
+
+快速打印数组
+Arrays.toString(a);
+
+数组初始化
+int[]  a = new int[2];
+a[0] = 1;
+int[] a = {1, 2, 3};
+int[] a = new int[]{1, 2, 3};
+数组长度可以为0 new int[0];
+
+数组拷贝
+Arrays.copyof();
+JDK6之前用System.arraycopy方法
+
+生成不重复的随机数
+1 - n放入数组numbers
+把最后数值改写为number[r]，n--
+nimber[r] = numbers[n-1];
+n--;
+
+打印二维数组
+Arrays.deepToString(a);

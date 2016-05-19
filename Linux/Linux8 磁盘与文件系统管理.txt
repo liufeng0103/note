@@ -1,0 +1,125 @@
+8 Linux的磁盘与文件系统管理
+
+1. 硬盘组成与分割
+扇区（Sector）为最小的物理储存单位，每个扇区为512 bytes;
+将扇区组成一个圆，那就是磁柱（Cylinder）， 磁柱是分割槽（partition）的最小单位
+第一个扇区最重要，里面有：（1）主要开机区（Master boot record， MBR）及分割表（partition table），其中MBR占446 bytes，而partition table占有64 bytes
+
+/dev/sd[a-p][1-15] 为SCSI， SATA, USB, Flash 随身碟等接口的磁盘文件名
+/dev/hd[a-d][1-63] 为IDE接口的磁盘文件名
+
+分区指告诉操作系统 我的分区从A磁柱到B磁柱之间的区块，分区信息保存在分区表中（上面的分割表）
+分区表仅64bytes，最多只能记录4个分区记录， 这4个记录我们称为主要（primary）或者扩展（extended）分区，其中扩展分区还可以在分割出逻辑（logical）分区，能被格式化的仅主要分区和逻辑分区
+
+分区定义：
+主分区跟扩展分区最多有4个（硬盘限制）
+扩展分区最多只能有一个（操作系统的限制）
+逻辑分区是由扩展分区持续切割出来的分区
+能被格式化的就逻辑分区跟主分区
+逻辑分区的数量依操作系统而不同， 在linux系统中， IDE硬盘最多有59个逻辑分区（5号到63号），SATA硬盘则有11个逻辑分区（5到15号）
+
+权限于属性放到inode中，实际数据放到data block中，另外还有一个超级区块（superblock）会记录整个文件系统的整体信息
+
+索引式文件系统
+
+block限制
+ext2文件系统所支持的block大小有1K,2K,4K
+block的大小与数量在格式化完就不能改变了
+每个block最多只能放一个文件数据
+一个文件会占用多个block
+如果文件小于block，则block的剩余容量就不能再使用了
+
+inode
+每个inode大小固定为128bytes
+每个文件仅会占用一个inode
+文件数与inode数有关
+系统读取文件需要先找到inode，分析inode记录的权限，符合才能读取实际block内容
+
+superblock
+大小为1024bytes
+
+block bitmap（区块对照表）
+通过这个辅助，知道哪些block是空的
+
+inode bitmap（inode对照表）
+与上面类似，记录未使用的inode
+
+每个区段与supperblock的信息可以使用dumpe2fs指令来查询
+
+[root@www ~]# df <==这个指令可以叫出目前挂载的装置
+
+dumpe2fs /dev/hdc2
+
+2. 挂载点的意义
+将文件系统与目录树结合的动作我们称为挂载
+
+Linux支持的文件系统有哪些
+ls -l /lib/modules/$(uname -r)/kernel/fs
+系统目前已加载到内存中支持的中文系统
+cat /proc/filesystems
+
+3. Linux VFS
+整个Linux系统是透过一个名为Virtual Filesystem Switch的核心功能去读取filesystem的
+
+4. 磁盘与目录的容量
+df 列出文件系统的整体磁盘使用量
+du 评估文件系统的磁盘使用量（常用在推估目录所占容量）
+
+将容量结果以易读的容量格式显示出来
+df -h
+
+/proc的东西是Linux系统所需要加载的系统数据，而且挂载在内存中的
+
+/dev/shm/目录，其实是利用内存虚拟出来的磁盘空间
+
+5. 实体链接与符号链接
+一种想windows的快捷方式，符号链接
+还有一种透过文件系统的inode链接产生新档名，而不是新文件，这种为实体链接
+
+Hard Link（实体链接，硬式链接或实际连结）
+ln /etc/crontab 建立实体链接指令
+ll -i /etc/crontab /root/crontab
+
+限制
+不能跨Filesystem
+不能link目录
+
+建立符号链接文件到/etc/crontab
+ln -s /etc/crontab crontab2
+
+6. 磁盘分区，格式化，检验于挂载
+磁盘分区 fdisk
+
+磁盘格式化 mkfs
+mke2fs
+
+磁盘检验 fsck， badblocks
+执行fsck时，被检查的parttion不可挂载到系统上，需要在卸除状态
+
+lost+found 该目录就是在你使用fsck检查文件系统后，若出现问题时，有问题的数据会被放置到这个目录中
+
+fsck用来检验文件系统是否出错，至于badblocks是用来检查硬盘或软盘扇区有没有坏道的指令，目前大多不使用这个指令
+
+磁盘挂载与卸除
+挂载 mount
+
+mount /dev/hdc6 /mnt/hdc6
+
+光驱挂载，例如
+正确的磁盘文件名要看你的光驱是什么连接接口的环境
+光驱接在/dev/hdd，所以正确挂载应该是 mount /dev/hdd /media/cdrom
+
+卸除
+umount
+
+用Label name进行挂载
+dumpe2fs来查询一下
+
+dumpe2fs -h /dev/hdc6
+
+mount -L "vbird_logical" /mnt/hdc6
+
+tune2fs ext2文件系统转换成ext3文件系统
+
+7. 开机挂载
+直接修改/etc/fstab

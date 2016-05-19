@@ -1,0 +1,103 @@
+﻿Worklight Hybird client side API
+
+Worklight application组件
+	app资源
+		Main htm文件	index.html
+		Main js文件		main.js
+		Messages文件来存储app的字符串， 主要用于语言的转换(国际化)	messages.js
+		
+	Worklight初始化
+		使用这个文件来定义app初始化选项	initOptions.js
+		关于更多的初始化选项，可以参考文档
+		
+	jQuery框架
+		Worklight包含一个概要的jQuery(wljq.js), 你可以用下面的代码把它添加到开发项目：
+			window.$ = window.jQuery = WLJQ;
+			
+	Worklight client js API
+		Client API使用WL命名空间 worklight.js
+		这个命名空间提供了使用本地手机API,动态加载HTML和其他元素的功能
+		
+WL命名空间
+	使用WL来调用worklight API
+		WL.Client, WL.Utils, .....
+		
+	WL可以调用API对象, 方法和常量(通常用枚举)
+	
+	WL被自动添加到app的主页面中	- worklight.js
+	
+	在app初始化中WL被启用
+	
+WL.Client
+	使用WL.Client, 你可以做一下这些事情
+		- 初始化和重新加载app
+			WL.Client.init(options)
+				选项有:
+				- onSuccess
+				- onFailure
+				- timeout
+				- ...
+			WL.Client.reloadApp()
+			
+		- 触发登录和退出
+			WL.Client.login(realm, options)
+			WL.Client.logout(realm, options)
+			
+		- app信息
+			WL.Client.getEnvironment()
+			WL.Environment.ADOBE_AIR
+			...
+			
+		- 在系统中恢复和更新数据
+			WL.Client.invokeProcedure(invocationData, options)
+			
+		- 存取用户参数信息
+			WL.Client.setUserPref(key, value, options)
+			WL.Client.setUserPrefs({key1:value1, ...}, options)
+			WL.Client.getUserPref(key)
+			WL.Client.deleteUserPref(key, options)
+			WL.Client.hasUserPref(key)
+			
+		- 指定环境-用户接口操作
+			WL.App.openURL
+			WL.App.getDeviceLanguage
+			WL.App.getDeviceLocale
+			WL.BusyIndicator
+			WL.TabBar
+			WL.SimpleDialog
+			WL.OptionsMenu
+			...
+			
+		- 在特殊的数据库表里存储log设置，便于以后的检查和报告
+			WL.Client.logActivity(activityType)
+			
+		- 写debug信息到log窗口
+			WL.Logger.debug
+			
+		更多信息查考文档
+		
+WL.Logger
+	WL.Logger帮助你定位错误而不需要使用debug工具
+	
+	WL.Logger输出到环境控制台, 如Xcode控制台, Adobe AIR,和Android LogCat等
+	
+	WL.Logger.debug(message)
+	
+	WL.Logger.error(message)
+	
+练习
+	基本的API app开发
+		1. 创建一个worklgiht app
+		2. 添加一张图片到头元素
+			- 监听单击事件
+			- 当单击时
+				显示busy indicator 5秒,然后重新加载app
+		3. 添加2个选项的select元素
+			显示app 环境参数
+			显示语言
+			- 但change选项时，显示选择的数据
+		4. 添加连接http://m.ibm.com到app底部
+			- 当点击时，打开一个URL
+			
+	这里可以找到一些例子
+		http://www.ibm.com/developerworks/mobile/worklight/getting-started.html

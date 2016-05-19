@@ -1,0 +1,25 @@
+RMI远程方法调用
+
+一个简单例子，客户端程序向远程仓库询问某个产品的价格
+
+1. 接口实现
+远程对象的接口必须扩展Remote接口，接口方法还必须声明抛出RemoteException异常
+public interface Warehouse extends Remote {
+	double getPrice(String description) throw RemoteException();
+}
+
+2. 服务器端
+public class WarehouseImpl extends UnicastRemoteObject implements Warehouse {
+	private Map<String, Double> prices;
+	public warehouseImple() throws RemoteException {
+		prices = new HashMap<String, Double>();
+		prices.put("Blackwell", 24.95);
+		prices.put("Zapxpress", 49.95);
+	}
+	
+	public double getPrice(String description) throws RemoteException {
+		Double price = prices.get(description);
+		return price == null ? 0 : price;
+	}
+}
+它继承自UnicastRemoteObject，这个类的构造器使得它的对象可供远程访问

@@ -1,0 +1,140 @@
+
+1. Hello world
+hibernate.cfg.xml 默认放在src下 也就是classpath下
+dialect方言 指明数据库方言
+hbm2ddl.auto 是否自动建表 值可以为create，没有就自动创建，update，更新表结构
+使用xml建立映射文件User.hbm.xml,现在基本使用注释方式设置映射
+
+获取session
+Configuration cfg = new Configuration();
+SessionFactory sf = cfg.configure().buildSessionFactory;
+Session session = sf.openSession();
+在session中执行操作需要执行事务操作
+session.beginTransaction();
+session.save();
+session.getTransaction().commit();
+session.close();
+sf.close();
+为了容易获取SessionFactory可以创建一个辅助类
+
+注释
+@Entity
+public class User {
+	@Id;
+	private int id;
+	private String name;
+}
+Configuration cfg = new AnnotationConfiguration();
+
+模拟hibernate原理
+
+MyManager MySql图形客户端
+
+建表工具 power designer
+
+搭建日志环境，显示ddl语句
+Hibernate使用了slf4j做日志管理， 配置log4j的实现
+
+JUnit
+@BeforeClass 可用于初始化一些东西
+@AfterClass
+
+format_sql打印更漂亮的sql，不显示在一行，格式化多行显示
+
+表名跟类名不同
+@Table(name="_Teacher")
+public class Teacher {}
+
+对实体类的属性默认为@Basic
+属性名不一致使用@Column(name="_name")
+
+类中不需要在数据库中的属性
+@Transient 透明的 
+
+时间和日期类型的映射
+@Temporal(TemporalType.DATE) 指定时间精度
+
+枚举类型映射
+@Enumerated(EnumType.STRING)
+
+自动生成id
+@GeneratedValue
+默认auto相当于native
+@GeneratedValue(strategy=GenerationType.IDENTITY, generator="aSEO")
+
+指定sequence的名字
+@SequenceGenerator(name="aSEQ", sequenceName="aSEO_DB")
+public class a{}
+
+@TableGenerator()
+
+联合主键
+1. 类注解为@Embeddable，属性注解为@Id
+2. 属性直接注释为@EmbeddedId
+3. @IdClass(value=TeacherPK.class), 属性设为@Id
+
+使用getCurrentSession需要配置上下文 jta或thread
+
+3中状态
+Transient 
+
+save(), delete(), load(), get()
+load使用代理对象，只有在真正使用的时候才发送sql查询
+
+update只更新修改的字段
+1. 注解不参与更新的字段@Column(updatable=false) 很少用，不灵活
+2. 在xml上 设置dynamic-update="true"
+3. HQL(建议) 
+	Query q = session.createQuery("update Student s set s.name='z5' where s.id = 1");
+	q.executeUpdate();
+	
+session.clear() 清缓存(一级缓存)
+session.flush() 强制缓存跟数据库同步
+
+SchemaExport 手动在code里建表
+new SchemaExport(new AnnotationConfiguration().configure()).create(true,true);
+
+关系映射
+一对一
+@OneToOne
+@JoinColumn(name="wiftId") 连接的字段
+一对一双向
+@OneToOne(mappedBy="wife") 可以只设一个外键，双向关联，这个必须设置，避免冗余
+
+联合主键
+创建联合主键类 WiftPK， 需要实现Serializable接口
+@Entity
+@IdClass(WiftPK.class)
+再在主键上加上@Id
+
+设置外键名
+@JoinColumns(
+	{
+		@JoinColumn(name="",referencedColumnName=""),
+		@JoinCOlumn()
+	}
+)
+
+组件映射
+@Embeded
+
+多对一，一对多
+数据库设计，在多的一方加外键
+@ManyToOne ， 在多的一方加
+@OneToMany, 在一的方向加 Set<T> xxx, @JoinColun(name="groupId")
+
+一对多，多对一双向， 需要设置@oneToMany(mappedBy="")
+改名
+@Table(name="t_user")
+该列名
+@JoinColumn
+
+多对多
+@ManyToMany
+@JoinTable(name="usergroup"，joinColumns={@JoinColumn(name="")},inverseJoinColumns={joinColumns={@JoinColumn(name="")}}) 设置中间表名
+
+默认不会保存关联值，需要设置cascade级联
+
+fetch管读取， cascade管cud
+
+

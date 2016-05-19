@@ -1,0 +1,223 @@
+Java核心技术-高级特性(第8版) 
+第2章 XML
+
+java SDK 的DOM解析器
+
+1. 读入一个xml文档，需要一个DocumentBuilder对象
+DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+DocumentBuilder builder = dbf.newDocumentBuilder;
+2. 从文件中读入某个文档
+File f = ...
+Document doc = builder.parse(f);
+或者可以用一个URL
+URL u = ...
+Document doc = builder.parse(u);
+或者任意的一个输入流
+InputStream in = ...
+Document doc = builder.parse(in);
+3. 通过调用getDocumentElement方法来分析文档内容，它将返回根元素
+Element root = doc.getDocumentElement();
+4. getTagName方法可以获取标签名
+5. getChildNodes方法返回NodeList的集合，如下枚举所有子元素
+NodeList children = root.getChildNodes();
+for(int i = 0; i < children.getLength(); i++)
+{
+	Node child = children.item(i);
+	...
+}
+6. 忽略空白字符
+for(int i = 0; i < children.getLength(); i++)
+{	
+	Node child = children.item(i);
+	if(child instanceof Element)
+	{
+		Element childElement = (Element)child;
+	}
+	...
+}
+7. 得到元素包含的字符串
+for(int i = 0; i < children.getLength(); i++)
+{	
+	Node child = children.item(i);
+	if(child instanceof Element)
+	{
+		Element childElement = (Element)child;
+		Text textNode = (Text)childElement.getFirstChild();
+		String text = textNode.getData().trim();
+		if(childElement.getTagName().equals("name"))
+			name = text;
+		else if(childElement.getTagName().equals("size"))
+			size = Integer.parseInt(text);
+	}
+	...
+}
+8. getLastChild方法得到最后一个子元素, getNextSibling得到下一个兄弟节点
+for(Node childNode = element.getFirstChild(); childNode != null; childNode = childNode.getNextSibling())
+{
+	...
+}
+9. 枚举节点属性
+NamedNodeMap attributes = element.getAttributes();
+for(int i = 0; i < attributes.getLength(); i++)
+{
+	Node attribute = attributes.item(i);
+	String name = attribute.getNodeName();
+	String value = attribute.getNodeValue();
+}
+通过属性名得到属性值
+String unit = element.getAttribute("unit");
+
+JAVA流机制解析器
+SAX解析器使用事件回调
+StAX解析器提供了解析事件的迭代器
+
+SAX解析器
+ContentHandler接口定义了若干个回调方法
+startElement endElement每当遇到起始或终止标签时调用
+characters 每当遇到字符数据时调用
+startDocument endDocument 文档开始和结束时各调一次
+
+1. SAXParser
+SAXParserFactory factory = SAXParserFactory.newInstance();
+SAXParser parser = factory.newSAXParser();
+2. 现在可以处理文档了
+parser.parse(source, handler)
+source是一个文件，URL字符串或者输入流
+处理器属于DefaultHandler的一个子类
+3. 处理器覆盖了Contenthandler接口的startElement方法
+DefaultHandler handler = new DefaulterHandler(){
+	public void startElement(String namespaceURI, String lname, String qname, Attributes attrs) throws SAXException {
+		if(lname.equalsIgnoreCase("a" && attrs != null)){
+			for(int i = 0; i < attrs.getLength(); i++){
+				Stirng aname = attrs.getLocalName(i);
+				if(aname.equalsIgnoreCase("href"))
+					System.out.println(attrs.getValue(i));
+			}
+		}
+	}
+}
+
+StAX解析器
+InputStream in = url.openStream();
+XMLInputFactory factory = XMLInputFactory.newInstance();
+XMLStreamReader parser = factory.createXMLStreamReader(in);
+while(parser.hasNext()){
+	int event = parser.next();
+	call parser methods to obtain event details
+}
+
+DTD验证XML
+
+1. 将DTD放入XML文档中, 不常用,一般存放在外面,SYSTEM声明可以实现这个目标
+<?xml version="1.0"?>
+<!DOCTYPE configuration[
+	<!ELEMENT configuration>
+	more rules
+]>
+<configuration>
+...
+</configuration>
+
+外联DTD
+<!DOCTYPE configuration SYSTEM “http://myserver.com/config.dtd”>
+
+元素内容规则
+E*			0或多个E
+使用DTD应用时参考
+
+XML Schema验证XML
+在文档中引入Schema文件，在根元素上加上属性
+<MODEL_UPDATE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="config.xsd">
+</MODEL_UPDATE>
+如果使用命名空间，语法就更加复杂了
+
+内建的简单类型
+xsd:string
+xsd:int
+xsd:boolean
+
+可以自己定义简单类型，例如枚举类型
+<xsd:simpleType name="StyleType">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="PLAIN" />
+		<xsd:enumeration value="BOLD" />
+		<xsd:enumeration value="ITALIC" />
+		<xsd:enumeration value="BQLD_ITALIC" />
+	</xsd:restriction>
+</xsd:simpleType>
+
+定义元素时，设定他们的类型
+<xsd:element name="name" type="xsd:string"/>
+
+使用XPath定位XML信息
+
+XML文档中的一组节点
+/gridbag/row
+
+所有row元素的指定元素
+/gridbag/row[1]
+
+用@可以得到属性值
+/gridbag/row[1]/cell[1]/@anchor
+
+Java API来计算XPath表达式
+1. 创建一个XPath对象
+XPathFactory xpfactory = XPathFactory.newInstance();
+path = xpfactory.newXPath();
+2. 调用evalute方法来计算XPath表达式
+String username = path.evaluate("/configuration/database/username", doc);
+3. 如果表达式产生一组节点
+NodeList nodes = (NodeList)path.evaluate("/gridbag/row", doc, XPathConstants.NODESET);
+如果结果只有一个节点
+NodeList nodes = (NodeList)path.evaluate("/gridbag/row[1]", doc, XPathConstants.NODE);
+
+生成XML文档
+用文档内容来构建一个DOM树
+1. 调用DocumentBuilder类的newDocument方法得到一个空文档
+Document doc = builder.newDocument();
+2. 使用Document类的createElement方法构建文档元素
+Element rootElement = doc.createElement(rootName);
+Element childElement = doc.createElement(childName);
+3. 使用createTextNode方法构建文本节点
+Text textNode = doc.createTextNode(textContents);
+4. 使用以下方法可以给文档加上根元素，给父节点加上子节点
+doc.appendChild(rootElement);
+rootElement.appendChild(childElement);
+childElement.appendChild(textNode);
+5. 设置元素属性
+rootElement.setAttribute(name, value);
+
+DOM API不支持把DOM树写到输出流，为了克服这个限制，使用可扩展的格式页转换XSLT API
+Transformer t = TransformerFactory.newInstance().newTransformer();
+t.setOutputProperty(OutPutKeys.DOCTYPE_SYSTEM, systemIndentifier);
+t.setOutputProperty(OutPutKeys.DOCTYPE_PUBLIC, publicIndentifier);
+t.setOutputProperty(OutputKeys.INDENT, "yes");
+t.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(file)));
+
+使用StAX写XML文档
+1. StAX API使我们可以直接XML树，这需要从某个OutputStream中构建一个XMLStreamWriter
+XMLOutputFactory factory = XMLOutputFactory.newInstance();
+XMLStreamWriter writer = factory.createXMLStreamWriter(out);
+2. 要产生XML的文件头 调用
+writer.writeStartDocument();
+然后调用
+writer.writeStartElement(name);
+添加属性
+write.writeAttribute(name, value);
+3. 可以通过再次调用writeStartElement添加新的子节点，或者用下面的语句写出字符
+write.writeCharacters(text);
+4. 在添加完所有子节点后调用
+writer.writerEndElement();
+这会导致当前元素被关闭
+5. 要写出没有子节点的元素如<img .. />可以调用
+writer.writeEmptyElement(name);
+6. 在文档的结尾调用
+writer.writeEndDocument();
+这个调用将关闭所有元素
+
+StAX不支持缩进输出
+
+XSL转换
+可以将XML文档转换为其它格式的规则
+
+你需要提供XSLT样式表，它描述了XML文档向其它某种格式转换的规则。XSLT处理器将读入XML文档和这个样式表，并产生所要的输出

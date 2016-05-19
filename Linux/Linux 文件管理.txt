@@ -1,0 +1,10 @@
+﻿Linux 文件管理
+
+创建名为luis的目录
+mkdir luis
+删除目录
+rmdir luis
+重命名或移动这个目录
+mvdir luis luis2
+
+pwd	显示当前目录路径

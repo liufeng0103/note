@@ -1,0 +1,134 @@
+﻿使用加密的缓存(encrypted cache)存储敏感数据
+
+什么是encrypted cache
+1. Encrypted cache是客户端存储数据的一种机制
+2. Encrypted cache通过使用HTML5的web存储技术实现， app可以用来保存和读取数据
+3. 数据通过用户提供的key和server端随机产生的taken组合来加密， 使数据更加安全
+4. 数据存储为键值对
+5. Encrypted cache像一个安全的存储箱， 它将一直保持打开状态直到用户关闭， 所以推荐用户在使用完之后关闭它
+
+特性
+1. Encrypted cache的同类技术：
+	- 本地web或DOM存储
+	- Indexed的数据库API
+	- Cordova API：Storage API 或 File API
+	- JSONStore
+2. 不同技术特性与Encrypted cache比较
+
+支持的浏览器和设备
+1. Encrypted cache使用HTML5 web存储技术实现
+2. 手机设备HTML5 web 存储支持图表
+	android都支持
+	
+创建和打开Encrypted cache
+1. 使用以下API创建或者打开之前创建的Encrypted cache：
+	WL.EncryptedCache.open(credentials, createIfNone, onComplete, onError);
+		credentials	- 用户提供的密码
+		createIfNone - boolean值指定当Encrypted cache找不到时是否创建
+		onComplete - 当创建打开完成后回调
+		onError - 当cache失败后回调
+	说明：app必须要能连接到worklight server来创建一个新的Encrypted cache
+2. 一个回调方法返回以下这些status：
+	–WL.EncryptedCache.OK–Encrypted cache成功打开或创建
+	–WL.EncryptedCache.ERROR_CREDENTIALS_MISMATCH–打开存在的encrypted cache使用了错误密码
+	–WL.EncryptedCache.ERROR_SECURE_RANDOM_GENERATOR_UNAVAILABLE–不能generate random token因为Worklight Server不可用
+	–WL.EncryptedCache.ERROR_NO_EOC–不能打开encrypted cache因为之前未创建
+	–WL.EncryptedCache.ERROR_LOCAL_STORAGE_NOT_SUPPORTED–设备不支持HTML5 local storage
+	–WL.EncryptedCache.ERROR_KEY_CREATION_IN_PROGRESS–一个open()或者changeCredentials()请求已经运行
+WL.EncryptedCache.open(key, true, onOpenComplete, onOpenError);
+function onOpenComplete(status){
+	busyIndicator.hide();
+	alert("Encrypted cache succesfully opened");
+}
+function onOpenError(status){
+	busyIndicator.hide();
+	switch(status){
+		caseWL.EncryptedCache.ERROR_KEY_CREATION_IN_PROGRESS:
+			alert("ERROR: KEY CREATION IN PROGRESS");
+			break;
+		caseWL.EncryptedCache.ERROR_LOCAL_STORAGE_NOT_SUPPORTED:
+			alert("ERROR: LOCAL STORAGE NOT SUPPORTED");
+			break;
+		caseWL.EncryptedCache.ERROR_NO_EOC:
+			alert("ERROR: NO EOC");
+			break;
+		caseWL.EncryptedCache.ERROR_COULD_NOT_GENERATE_KEY:
+			alert("ERROR: COULD NOT GENERATE KEY");
+			break;
+		caseWL.EncryptedCache.ERROR_CREDENTIALS_MISMATCH:
+			alert("ERROR: CREDENTIALS MISMATCH");
+			break;
+		default:
+			alert("AN ERROR HAS OCCURED. STATUS :: "+ status);
+	}
+}
+	
+读写删除数据
+1. 当cache打开之后， 你就可以执行读写和删除操作了
+2. 用以下API来存储数据：
+	– WL.EncryptedCache.write(key, value, onSuccess, onFailure);
+	WL.EncryptedCache.write(key, value, onWriteSuccess, onWriteFailure);
+	functiononWriteSuccess(status){
+		alert("Succesfully encrypted into cache.");
+	}
+	functiononWriteFailure(status){
+		if(status == WL.EncryptedCache.ERROR_EOC_CLOSED)
+			alert("Encrypted cache closed, write failed. error code= "+ status);
+	}
+3. 读数据：
+	–WL.EncryptedCache.read(key, onSuccess, onFailure);
+	WL.EncryptedCache.read(key, onDecryptReadSuccess, onDecryptReadFailure);
+	functiononDecryptReadSuccess(value){
+		alert("Read success. Retrieved value :: "+ key + " = "+ value);
+	}
+	functiononDecryptReadFailure(status){
+		alert("Encrypted cache closed, reading failed");
+	}
+
+	–WL.EncryptedCache.remove(key, onSuccess, onFailure);
+	WL.EncryptedCache.remove(key, onRemoveSuccess, onRemoveFailure);
+	functiononRemoveSuccess(status){
+		alert("Succesfully removed from cache.");
+	}
+	functiononRemoveFailure(status){
+		alert("Encrypted cache closed, remove failed");
+	}
+
+关闭和销毁cache
+1. 关闭cache来避免不受限制的访问cache数据
+2. cache关闭之后将无法访问存储的数据
+3. 关闭cache API：
+	–WL.EncryptedCache.close(onComplete, onFailure);
+	function closeCacheClicked(){
+		WL.EncryptedCache.close(onCloseCompleteHandler, onCloseFailureHandler);
+	}
+	function onCloseCompleteHandler(status){
+		alert("Encrypted cache closed successfuly");
+	}
+	function onCloseFailureHandler(status){
+		alert("Could not close Encrypted cache");
+	}
+4. cache数据可以从本地存储中被擦除掉
+5. 销毁cache之后， 存储在里面的数据将无法找回了
+6. 确保你不在使用的时候才销毁cache， 或者你丢失了你的key
+7. 销毁API：
+	–WL.EncryptedCache.destroy(onComplete, onError);
+	functiondestroyCacheClicked(){
+		WL.EncryptedCache.destroy(onDestroyCompleteHandler,
+		onDestroyErrorHandler);
+	}
+	functiononDestroyCompleteHandler(status){
+		alert("Encrypted cache destroyed");
+	}
+	functiononDestroyErrorHandler(status){
+		alert("Error destroying Encrypted cache");
+	}
+	
+修改加密key
+1. 当cache是打开状态时，可以修改加密的key
+2. API：
+	–WL.EncryptedCache.changeCredentials(credentials, onComplete, onError)
+	credentials – 新的key
+	onComplete – 成功后的回调函数
+	onError – 出现error后的回调函数
+3. 回调函数接受到的status对象跟WL.EncryptedCache.open()是一样的结构

@@ -1,0 +1,240 @@
+Java核心技术-高级特性(第8版) 
+第1章 流与文件
+
+I/O的2个主要抽象类
+InputStream, OutStream 面向字节的输入输出
+
+InputStream 定义的方法
+abstruct int read();  
+读取一个byte，返回读到的byte， 到输入流末尾了返回-1
+int read(byte[] b)
+把读取的byte放入字节数组b，返回实际读到的字节数， 到流末尾返回-1. 这个方法最对读取b.length个byte
+
+OutStream
+abstract void write(int b)
+
+read, wirte方法都是线程阻塞的
+用available判断字节是否可以读，下面代码不会阻塞
+int bytesAvailable = in.available();
+if (bytesAvailable > 0)
+{
+   byte[] data = new byte[bytesAvailable];
+   in.read(data);
+}
+
+close(), flush()
+
+Reader, Writer用来读写基于2个字节的Unicode编码的文件
+abstract int read()
+abstract void write(int c)
+read方法返回一个Unicode code unit
+
+例子
+1. PrintWriter，FileReader，Scanner使用
+// 按行写文本到文件
+PrintWriter out = new PrintWriter("test.txt");
+out.println(1);
+out.println("this is a test msg!");
+out.close();
+
+// 按行读取文本文件
+Scanner in = new Scanner(new FileReader("test.txt"));
+int n = in.nextInt();
+in.nextLine(); // 消耗一行
+String line = in.nextLine();
+in.close();
+
+// 得到类路径
+getClass().getName();
+
+// 日期表示
+// 设置日期
+GregorianCalendar calendar = new GregorianCalendar(year, month - 1, day);
+Date date = calendar.getTime();
+// 获取日期
+GregorianCalendar calendar = new GregorianCalendar();
+calendar.setTime(date);
+int year 	= calendar.get(Calendar.YEAR);
+int month 	= calendar.get(Calendar.MONTH) + 1; // 推测月份是从0-11
+int day		= calendar.get(Calendar.DAY_OF_MONTH);
+
+2. DataOutputStream，RandomAccessFile使用
+// 按数据类型写数据到文本文件
+DataOutputStream out = new DataOutputStream(new FileOutputStream("test.txt"));
+out.writeChar('A'); // 字符占1个字节
+out.writeDouble(2.1415926); // Double占8个字节
+out.writeInt(123456); // Int占4个字节
+out.close();
+
+// 随机读取文件
+RandomAccessFile in = new RandomAccessFile("test.txt", "r");
+in.seek(1 * 2 + 8); // 偏移9个字节
+int i 		= in.readInt();
+
+in.seek(0); // 偏移1个字节
+char c		= in.readChar();			
+
+in.seek(0); // 定位到开头
+in.skipBytes(1 * 2); // 跳过1个字节			
+double d 	= in.readDouble();
+
+long len = in.length(); // 流的长度，结果为字节数13			
+
+in.close();
+
+3. ZipInputStream使用
+// 读取zip中的各个文件的文件名
+ZipInputStream zin = new ZipInputStream(new FileInputStream("test.zip"));
+ZipEntry entry;
+while ((entry = zin.getNextEntry()) != null) {
+	entry.getName(); // 获取文件名
+	
+	// 读取文件内容
+	Scanner in = new Scanner(zin);
+	while (in.hasNextLine()) {
+		String line = in.nextLine();
+	}
+	
+	zin.closeEntry();
+}
+zin.close();
+
+4. ObjectOutputStream，ObjectInputStream使用
+// 把对象写入文件
+ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("test.txt"));
+Staff staff = new Staff("myname");
+out.writeObject(staff);
+out.close();
+
+// 从文件中读出对象
+ObjectInputStream in = new ObjectInputStream(new FileInputStream("test.txt"));
+Staff staff = (Staff) in.readObject();
+in.close();
+
+// 写入文件的对象，类必须实现Serializable接口
+class Staff implements Serializable {
+	private String name;	
+	
+	public Staff(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String toString() {
+		return "Name: " + name;
+	}
+}
+
+5. ByteArrayOutputStream，ByteArrayInputStream使用
+// 使用对象流实现clone()
+/**
+   A class whose clone method uses serialization.
+*/
+class SerialCloneable implements Cloneable, Serializable
+{  
+   public Object clone()
+   {  
+      try
+      {  
+         // save the object to a byte array
+         ByteArrayOutputStream bout = new ByteArrayOutputStream();
+         ObjectOutputStream out = new ObjectOutputStream(bout);
+         out.writeObject(this);
+         out.close();
+
+         // read a clone of the object from the byte array
+         ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+         ObjectInputStream in = new ObjectInputStream(bin);
+         Object ret = in.readObject();
+         in.close();
+
+         return ret;
+      }  
+      catch (Exception e)
+      {  
+         return null;
+      }
+   }
+}
+// 需要使用clone()的类继承SerialCloneable
+
+6. File使用
+// File 列出所有文件夹
+public void listDirectory(String directoryPath) {
+	File pathName = new File(directoryPath);
+	String[] fileNames = pathName.list(); // 目录下所有的文件名
+	for (String fileName : fileNames) {
+		File f = new File(pathName.getPath(), fileName);
+		if (f.isDirectory()) {
+			System.out.println(f.getCanonicalPath()); // 打印目录绝对路径
+			listDirectory(f.getPath());
+		}
+	}
+}
+
+7. I/O类速度比较
+// 计算各种流的速度， nio > BufferedInputStream > FileInputStream > RandomAccessFile
+InputStream in = new FileInputStream("test.txt");
+CRC32 crc = new CRC32(); // 可用于计算数据流的 CRC-32 的类
+int c;
+while ((c = in.read()) != -1) {
+	crc.update(c); // 使用指定字节更新 CRC-32
+}
+long sum = crc.getValue(); // 当前的校验和值
+
+InputStream in = new BufferedInputStream(new FileInputStream("test.txt"));
+
+RandomAccessFile file = new RandomAccessFile("test.txt", "r");
+
+// nio
+FileInputStream in = new FileInputStream("test.txt");
+FileChannel channel = in.getChannel();
+int length = (int) channel.size();
+MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, 0, length);
+for (int p = 0; p < length; p++) {
+	int c = buffer.get(p);
+}
+
+// 计算程序执行时间
+start = System.currentTimeMillis();
+end = System.currentTimeMillis();
+System.out.println((end - start) + " milliseconds");
+
+8. Pattern，Matcher使用
+// 正则表达式使用
+Pattern pattern = Pattern.compile("a*b");
+Matcher matcher = pattern.matcher("aaaaab");
+boolean b = matcher.matches();
+int g = matcher.groupCount(); // 返回此匹配器模式中的捕获组数
+matcher.start(int group); // 回在以前的匹配操作期间，由给定组所捕获的子序列的初始索引
+matcher.end(int group); // 返回在以前的匹配操作期间，由给定组所捕获子序列的最后字符之后的偏移量
+
+boolean b = Pattern.matches("a*b", "aaaaab");
+
+// 从控制台接受输入
+Scanner in = new Scanner(System.in);
+String s = in.nextLine(); // 等待输入， 把接收到的输入赋值给s
+
+9. 
+// 使用正则表达式查询URL所有的超链接
+String url = "http://www.jd.com";
+// 使用reader处理URL
+InputStringReader in = new InputStreamReader(new URL(url).openStream());
+// 把读到的内容放入string builder
+StringBuilder input = new StringBuilder();
+int ch;
+while ((ch = in.read(0) != -1)
+	input.append((char)ch);
+String patternString = "<a\\s+href\\s*=\\s*(\"[^\"]*\"|[^\\s>])\\s*>";
+Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
+Matcher matcher = pattern.matcher(input);
+while (matcher.find())
+{
+   int start = matcher.start();
+   int end = matcher.end();
+   String match = input.substring(start, end);
+   System.out.println(match);
+}

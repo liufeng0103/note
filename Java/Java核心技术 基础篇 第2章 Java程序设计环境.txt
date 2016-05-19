@@ -1,0 +1,46 @@
+﻿第2章 Java程序设计环境
+
+1. 在Windows下安装JDK时，不要安装在带有空格的路径名下，如：c:\Program Files\
+
+2. 设置执行路径
+把jdk/bin的目录添加到执行路径
+	a. UNIX(Solaris和Linux)
+		1) C shell(Solaris的默认选择)，在~/.cshrc文件末尾添加：
+		set path=(/usr/local/jdk/bin $path)
+		2) Bourne Again shell(Linux的默认选择)，在~/.bashrc文件或~/.bash_profile文件末尾添加：
+		export PATH=/usr/local/jdk/bin:$PATH
+	b. Windows下,在设置环境变量下找到变量名path,将jdk\bin目录添加到开始处，用分号将新条目隔开：
+		c:\jdk\bin;other stuff
+测试设置是否正确，打开shell窗口，键入：
+java -version
+
+3. 库源代码文件在JDK中以一个压缩文件src.zip的形式发布，文档从网站下载，文件名为jdk-version-doc.zip
+linux解压
+jar xvf ../src.zip
+windows解压
+jar xvf ..\src.zip
+
+4. JDK目录树
+jdk	--bin		编译器和工具
+	--demo		演示
+	--docs		html格式的类库文档(自己下载)
+	--include	用于编译本地方法的文件
+	--jre		java运行环境
+	--lib		类库文件
+	--src		类库源文件
+	
+5. 	a. javac Welcome.java
+	javac程序是一个java编译器，将.java文件编译成.class文件
+	b. java Welcome
+	将.class文件发送到虚拟机，虚拟机执行编译器存放在class文件中的字节码
+	
+如果键入java Welcome，虚拟机没有找到Welcome类，可以检查下CLASSPATH环境变量是否被别人更改了
+临时地取消CLASSPATH环境变量的设置：
+set CLASSPATH=
+这个命令用于Windows
+export CLASSPATH=
+
+测试applet
+6. appletviewer WelcomeApplet.html
+
+

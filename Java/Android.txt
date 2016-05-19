@@ -1,0 +1,8 @@
+﻿View就像Swing的JComponent
+ViewGroup就像JPanel
+
+Layout
+LinearLayout类似于swing的boxlayout
+RelativeLayout
+TableLayout
+TabLayout

@@ -1,0 +1,50 @@
+Java 并发
+
+定义线程
+实现Runnable接口编写run方法
+public class TestThread implements Runnable {
+	public void run() {
+		// 线程代码
+	}
+}
+
+// 对线程调度器的一种建议(可以将CPU从一个线程转移到另一个线程)
+Thread.yield();
+
+启动线程
+Thread t = new Thread(new TestThread());
+t.start();
+
+使用Executor管理线程
+ExecutorService exec = Executors.newCacheThreadPool();		// 线程池
+ExecutorService exec = Executors.newFixedThreadPool(5);		// 固定数量的线程池
+ExecutorService exec = Executors.newSingleThreadExecutor();	// 数量为1的FixedThreadPool
+exec.execute(new TestThread());
+exec.shutdown();
+
+从线程中产生返回值
+实现Callable接口编写call()方法
+public class TestThread implements Callable<String> {
+	public String call() {
+		// 线程代码, 返回一个字符串
+	}
+}
+使用
+ExecutorService exec = Executors.newCacheThreadPool();
+Future<String> result = exec.submit(new TestThread());
+result.get(); // 获取线程返回的字符串
+
+线程休眠
+TimeUnit.MILLISECONDS.sleep(1000);
+// sleep() 方法可以抛出InterruptedException异常, 必须在run方法中处理所有异常,异常不能跨线程传播回main
+
+优先级
+JDK有10个优先级
+Thread.currentThread().setPriority(1); // 设置优先级
+Thread.MAX_PRIORITY, Thread.NORM_PRIORITY, Thread.MIN_PRIORITY // 操作系统对线程优先级定义不一样, 唯一可移植的方法是只是用这个3个级别
+
+后台线程
+当所有非后台线程结束时,程序也就终止了,同时会杀死进程中所有的后台线程
+Thread t = new Thread(new TestThread());
+t.setDaemon(true); // 在start()方法前调用,设置此线程为后台线程
+t.start();

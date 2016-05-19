@@ -1,0 +1,51 @@
+﻿多页面应用
+
+多页面一个用基础
+	一个Hybrid app使用单DOM模型
+	单DOM模型意味着不能使用超链接或者window.location属性来实现多页面跳转
+	你需要通过使用ajax来把额外的html文件加载到现有的DOM里
+	因为主页面加载了worklgiht的js框架，如果跳转到其他HTML文件， 这些加载js上下文和文件就无效了
+	许多现在使用的JS UI框架(jQuery Mobile, Sencha Touch, Dojo Mobile)都提供多页面api的支持
+	重要:如果是用JS UI框架就不要使用本章介绍的方法实现多页面,使用框架的api代替
+	
+	创建多页面应用的2种方法
+		1. 一个html包含所有的app page
+		2. 每一个app page的html都分开
+		
+	只用一个html文件一般用于简单的应用
+	开发者显示当前page的div，隐藏剩下的
+	但当大的app是这种方法就会有问题：
+		- 开发者在任何时候都需要知道需要显示哪些DIV,需要隐藏哪些DIV
+		- 如果你先要添加新内容到页面， 例如一张表格， 你不能加载一个准备的模板，你必须手动的重新生成
+		- 一个大的html需要更多的加载时间
+		- 分开的html便于管理
+	你可以使用jQuery api来动态的加载更新和插入DOM元素到你的app
+	你可以插入带有CSS JS的HTML
+	你可以试下历史导航
+	在页面加载和卸载时也可以运行js
+	下面学习怎么实现一个简单的多页面导航
+	
+	在使用Windows Phnoe 8是你需要每次使用jQuery load()修改URL
+	添加/www/default/在URL路径的他开头
+	如：
+	$("#pagePort").load("pages/MainPage.html", function(){
+		(currentPage.init);
+	});
+	修改成
+	$("#pagePort").load(“/www/default/pages/MainPage.html", function(){
+		(currentPage.init);
+	});
+	
+加载外部html文件
+	一个外部html是一个html的代码片段，可以被加载到一个现有的DOM的任何位置
+	一个HTML文件可以包含多个HTML元素
+	使用<script>来包含JS
+	使用<link>来加载CSS
+	注入到父元素, 通常使用<div>， 但不是强制的
+	通过使用jQuery$().load api实现
+	
+	如下格式加载一个html文件
+		$(containerSelector).load(filePath, callbackFunction);
+		- containerSelector
+		- filePath
+		- callbackFunction

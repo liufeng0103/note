@@ -1,0 +1,39 @@
+﻿12 泛型程序设计
+
+简单泛型类的定义
+public class Pair<T> {
+	private T first;
+	private T second;
+	public Pair() {
+		first = null;
+		second = null;
+	}
+	public Pair(T first, T second) {
+		this.first = first;
+		this.second = second;
+	}
+}
+
+可以定义多个类型变量
+public class Pair<T, U> { ... }
+
+类型变量使用大写形式，在java库中，
+E 表示集合的元素类型
+K V 分别表示表的关键字和值得类型
+T(需要时可以用临近的字母U和S) 表示任意类型
+
+12.3 泛型方法
+class ArrayAlg {
+	public static <T> T getMiddle(T[] a) {
+		return a[a.length / 2];
+	}
+}
+类型变量放在修饰符的后面(这里是public static)，返回类型的前面
+
+12.4 泛型变量限定
+确信T所属类有compareTo方法
+解决这个问题就是的方案是將T限制为实现了Comparable接口(只含有一个方法compareTo的标准接口)的类。
+public static <T extends Comparable> T min(T[] a) ...
+
+<T extends Comparable & Serializable>
+用&来限定多个

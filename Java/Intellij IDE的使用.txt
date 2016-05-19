@@ -1,0 +1,11 @@
+﻿alt + Insert 添加Get Set
+Ctrl + I 添加接口未实现的方法
+Ctrl + Alt + T 用if、while、try catch来围绕选中的代码行
+Ctrl + Alt + L 格式化代码格式
+
+显示行号
+File - Settings - Editor - General - Appearance
+
+Intellij IDEA
+1. 创建项目的时候选择需要用到的框架创建， 它会自动帮你下载最新的框架jar包
+2.　导入包 alt + Enter

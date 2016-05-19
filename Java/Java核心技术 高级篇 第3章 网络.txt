@@ -1,0 +1,42 @@
+﻿
+talnet
+talnet www.baidu.com 80
+GET / HTTP/1.1
+回车2次
+
+Java构建一个套接字
+Socket s = new Socket("time-A.timefreq.bldrdoc.gov", 13);
+InputStream is = s.getInputStream();
+s.getOutputStream() //可以向套接字写出数据的流
+s.setSoTimeout(10000); //设置超时时间
+
+Socket(String host, int port) 会一直无限阻塞下去，直到建立了到达主机的初始连接
+可以用下面方法解决这个问题
+Socket s= new Socket();
+s.connect(new InetSocketAddress(host, port), timeout);
+
+IPv4为4个字节 IPv6为16个字节
+
+获得主机IP地址
+InetAddress address = InetAddress.getByName("host");
+byte[] addressBytes = address.getAddress();
+一个主机可能对于多个IP，使用如下得到全部IP
+InetAddress[] addresses = InetAddress.getAllByName("host");
+得到本机地址
+InetAddress address = InetAddress.getLocalHost();
+
+简单的服务器
+
+多个用户访问服务器
+为每个连接创建一个线程，这个方法不能满足高性能服务器的要求。 为了实现更高吞吐量，可以参考java.nio包的一些特性
+
+半关闭
+关闭输入或者输出流而不关闭socket
+
+可中断Socket
+
+发送Email
+Java Mail API
+
+建立URL连接
+URL和URLConnection
