@@ -1,0 +1,24 @@
+
+angularjs模块化
+
+
+var helloModule=angular.module('HelloAngular', []);
+helloModule.controller('helloNgCtrl', ['$scope', function($scope){
+	$scope.greeting = {
+		text: 'Hello'
+	};
+}]);
+
+项目目录结构
+app
+	css
+	framework
+	imgs
+	js
+		app.js
+		controllers.js
+		directives.js
+		filters.js
+		services.js
+	tpls - html代码片段
+	index.html

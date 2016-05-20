@@ -1,0 +1,121 @@
+##简介
+
+#作者
+Misko Hevery & Adam Abrons
+2009年卖给Google
+
+#AngularJS通过使用我们称为标识符(directives)的结构，让浏览器能够识别新的语法:
+使用双大括号{{}}语法进行数据绑定
+使用DOM控制结构来实现迭代或者隐藏DOM片段
+支持表单和表单的验证
+能将逻辑代码关联到相关的DOM元素上
+能将HTML分组成可重用的组件
+
+#4大核心特性
+MVC
+模块化
+指令系统
+双向数据绑定
+
+AngularJS核心概念
+	MVC：作为DataModel的$scope
+	依赖注入DI
+	模块化Module
+	Service
+	Filter
+	双向数据绑定
+	指令Directive
+	单元测试&E2E测试
+	
+##实例
+
+#一个表单的典型CRUD应用
+1.将数据模型(data-model)关联到视图(UI)上；
+2.写、读、验证用户的输入；
+3.根据模型计算新的值；
+4.将输出格式本地化
+
+代码：
+<!doctype html>
+<html ng-app>
+<head>
+<script src="angular-1.1.0.min.js"></script>
+<script src="script.js"></script>
+</head>
+<body>
+<div ng-controller="InvoiceCntl">
+<b>Invoice:</b>
+<br>
+<br>
+<table>
+<tr><td>Quantity</td><td>Cost</td></tr>
+<tr>
+<td><input type="integer" min="0" ng-model="qty" required ></td>
+<td><input type="number" ng-model="cost" required ></td>
+</tr>
+</table>
+<hr>
+<b>Total:</b> {{qty * cost | currency}}
+</div>
+</body>
+</html>
+script.js:
+function InvoiceCntl($scope) {
+$scope.qty = 1;
+$scope.cost = 19.95;
+}
+说明：
+1. 在<html>标签里, 我们用一个ng-app标识符标明这是一个AngularJS应用。这个ng-app标识符会使AngularJS自动初始化(auto initialize)你的应用
+2. 我们用<script>标签来加载AngularJS脚本
+3. 通过设置<input>标签里的ng-model属性, AngularJS会自动对数据进行双向绑定。我们还同时进行了一些简单的数据验证：
+	1. 当页面加载完后，AngularJS会依照widget里的声明的模型名字（qty、cost）生成同名变量。你可以把这些变量认为是MVC设计模式中的M(Model)
+	2. 注意上面widget里的input有着特殊的能力。如果你们没有输入数据或者输入的数据无效，这个input输入框会自动变红。输入框的这种新特性，能让开发者更容易实现CRUD应用里常见的字段验证功能
+4. 	神秘的双大括号{{}}：
+	1. Total:{{qty *cost |currency}}这个{{表达式}}标记是AngularJS的数据绑定。其中的表达式可以是表达式和过滤器({{ expression | filter }})的组合。AngularJS提供了过滤器来对输入输出数据格式化
+	2. Total:{{qty *cost |currency}}这个{{表达式}}标记是AngularJS的数据绑定。其中的表达式可以是表达式和过滤器({{ expression | filter }})的组合。AngularJS提供了过滤器来对输入输出数据格式化
+	
+##理念
+1. 当组建视图(UI)同时又要写软件逻辑时，声明式的代码会比命令式的代码好得多，尽管命令式的代码非常适合用来表述业务逻辑
+2. 将DOM操作和应用逻辑解耦是一种非常好的思路，它能大大改善代码的可调性
+3. 将测试和开发同等看待是一种非常非常好的思路，测试的难度在很大程度上取决于代码的结构
+4. 将客户端和服务器端解耦是一种特别好的做法，它能使两边并行开发，并且使两边代码都能实现重用
+5. 如果框架能够在整个开发流程里都引导着开发者：从设计UI，到编写业务逻辑，再到测试，那对开发者将是极大的帮助
+6. “化繁为简，化简为零”总是好的
+7. AngularJS能将你从以下的噩梦中解脱出来：
+	1. 使用回调：回调的使用会打乱你的代码的可读性，让你的代码变得支离破碎，很难看清本来的业务逻辑。移除一些常见的代码，例如回调，是件好事。大幅度地减少你因为JavaScript这门语言的设计而不得不写的代码，能让你把自己应用的逻辑看得更清楚
+	2. 手动编写操作DOM元素的代码：操作DOM是AJAX应用很基础的一部分，但它也总是很“笨重”并且容易出错。用声明的方式描述的UI界面可随着应用状态的改变而变化，能让你从编写低级的DOM操作代码中解脱出来。绝大部分用AngularJS写的应用里，开发者都不用再自己去写操作DOM的代码，不过如果你想的话还是可以去写
+	3. 手动编写操作DOM元素的代码：操作DOM是AJAX应用很基础的一部分，但它也总是很“笨重”并且容易出错。用声明的方式描述的UI界面可随着应用状态的改变而变化，能让你从编写低级的DOM操作代码中解脱出来。绝大部分用AngularJS写的应用里，开发者都不用再自己去写操作DOM的代码，不过如果你想的话还是可以去写
+	4. 开始前得写大量的基础性的代码：通常你需要写很多的基础性的代码才能实现一个“Hello World”的应用。用AngularJS的话，它会提供一些服务让你很容易地正式开始写你的应用，而这些服务都是以一种Guice-like dependency-injection式的依赖注入自动加入到你的应用中去的,这让你能很快的进入你应用的具体开发。特别的是，你还能全盘掌握自动化测试的初始化过程
+	
+##AngularJS表达式
+AngularJS 表达式写在双大括号内：{{ expression }}
+AngularJS 表达式把数据绑定到 HTML，这与ng-bind指令有异曲同工之妙
+AngularJS 将在表达式书写的位置"输出"数据
+AngularJS 表达式很像JavaScript 表达式：它们可以包含文字、运算符和变量
+
+
+
+
+angularjs模块化
+
+
+var helloModule=angular.module('HelloAngular', []);
+helloModule.controller('helloNgCtrl', ['$scope', function($scope){
+	$scope.greeting = {
+		text: 'Hello'
+	};
+}]);
+
+项目目录结构
+app
+	css
+	framework
+	imgs
+	js
+		app.js
+		controllers.js
+		directives.js
+		filters.js
+		services.js
+	tpls - html代码片段
+	index.html

@@ -1,0 +1,11 @@
+编写应用
+
+简介
+1. 根据需求进行界面原型设计
+2. 切分功能模块并建立目录结构
+3. 使用angular-ui和Bootstrap编写UI
+	UIRouter，ngGrid，表单校验
+4. 编写Controller
+5. 编写Service
+6. 编写Filter
+7. 单元测试和集成测试

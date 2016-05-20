@@ -1,0 +1,358 @@
+指令(标识符)directive
+========================================
+
+```
+myModule.directive("hello", function() {
+	return {
+		restrict: 'AEMC',
+		template: '<div>abced</div>',
+		replace: true
+	}
+});
+```
+
+restrict
+-----------------------------------------
+匹配模式，一共有4个选项AEMC
+A（默认）	        - attribute 属性 	<div hello></div>
+E 			- element 元素		<hello></hello>
+M 			- comment	注释	<!-- directive:hello --><div></div> 注释2边要有空格，不然无法识别，小坑
+C 			- class 类			<div class="hello"></div>
+推荐使用元素和属性的方式使用指令
+当需要创建带有自己的模板的指令时，使用元素名称的方式创建指令
+当需要为已有的HTML标签增加功能时，使用属性的方式创建指令
+
+template
+-----------------------------------------
+指令要显示的html，如果html比较长可以使用templateUrl: 'hello.html' 这样就不用吧html写在js中了
+
+// 注射器加载完所有模块时，此方法执行一次
+```
+myModule.run(function ($templateCache) {
+	$templateCache.put("hello.html", "<div>hello</div>");
+});
+myModule.directive("hello", function($templateCache) {
+	return {
+		restrict: 'AEMC',
+		template: $templateCache.get("hello.html"),
+		replace: true
+	}
+});
+```
+
+$templateCache
+-----------------------------------------
+把指令的html指令缓存起来，其它地方通过$templateCache.get()获取到html内容
+
+replace
+-----------------------------------------
+替换html使用指令的标签
+
+```
+myModule.directive("hello", function($templateCache) {
+	return {
+		restrict: 'AEMC',
+		transclude: true,
+		template: "<div>Hello everyone!<div ng-transclude></div></div>",
+		compile:function() {
+		},
+		link:function(){
+		}
+	}
+});
+```
+
+transclude
+-----------------------------------------
+变换, 把html中指令内部的内容放到用ng-transclude标记的地方，指令互相可以嵌套，这个选项很有用
+
+compile
+-----------------------------------------
+指令的执行过程
+	1. 加载 - angularjs找到ng-app，确定应用边界，加载整个DOM
+	2. 编译 - 找到DOM中所有的angular标签，有指令的地方重新生成DOM结构，此时会调用指令的compile，不建议自己写compile方法，这样会覆盖angular父类默认的方法行为
+	3. 链接 - 对每一条指令运行link函数，绑定事件，绑定作用域
+	
+link
+-----------------------------------------
+需要操作DOM时，在link函数里操作
+link函数一共有4个参数，分别是scope，element，attr，父控制器
+```
+link: function(scope, element, attr, parentCtrl) {}
+```
+
+指令与控制器交互
+-----------------------------------------
+```
+<div ng-controller="MyCtrl">
+	<loader>滑动加载</loader>
+</div>
+给元素绑定鼠标事件
+myModule.controller('MyCtrl',['$scope',function($scope){
+	$scope.loadData=function() {
+		console.log("加载中...");
+	}
+}]);
+myModule.directive("loader", function() {
+	return {
+		restrict: 'AE',
+		link:function(scope, element, attr){
+			element.bind("mouseenter",function(){
+				scope.loadData(); // 方法1. 调用controller的loadData方法
+				scope.$apply("loadData()"); // 方法2 调用controller的loadData方法
+			});
+		}
+	}
+});
+```
+
+通过上面的方法使指令和控制器交互，不过这种方式有个缺点，这个指令loader只能用在MyCtrl中， 如果想多个controller一起用这个指令，而调用不用的方法，可以用下面的方法，给指令增加属性
+```
+<div ng-controller="MyCtrl">
+	<loader howToLoad="loadData()">滑动加载</loader>
+</div>
+<div ng-controller="MyCtrl2">
+	<loader howToLoad="loadData2()">滑动加载</loader>
+</div>
+myModule.controller('MyCtrl',['$scope',function($scope){
+	$scope.loadData=function() {
+		console.log("加载中...");
+	}
+}]);
+myModule.controller('MyCtrl2',['$scope',function($scope){
+	$scope.loadData2=function() {
+		console.log("加载中...");
+	}
+}]);
+myModule.directive("loader", function() {
+	return {
+		restrict: 'AE',
+		link:function(scope, element, attr){
+			element.bind("mouseenter",function(){
+				var method = attr.howtoload;	// 获取属性的值，这里属性都用小写，ng的坑
+				scope.$apply(method);
+			});
+		}
+	}
+});
+```
+通过这种方法实现了指令复用
+
+指令之间的交互
+-----------------------------------------
+```
+<superman strength>动感超人---力量</superman>
+<superman strength speed>动感超人2---力量+敏捷</superman>
+<superman strength speed light>动感超人3---力量+敏捷+发光</superman>
+
+var myModule = angular.module("MyModule", []);
+myModule.directive("superman", function() {
+    return {
+        scope: {},	// 声明独立作用域
+        restrict: 'AE',
+        controller: function($scope) {	// 这里的controller跟模块的controller不一样，这里通过controller是定义指令的公共函数，供外部调用的
+            $scope.abilities = [];
+            this.addStrength = function() {
+                $scope.abilities.push("strength");
+            };
+            this.addSpeed = function() {
+                $scope.abilities.push("speed");
+            };
+            this.addLight = function() {
+                $scope.abilities.push("light");
+            };
+        },
+        link: function(scope, element, attrs) {
+            element.addClass('btn btn-primary');	// 给元素添加样式
+            element.bind("mouseenter", function() {
+                console.log(scope.abilities);
+            });
+        }
+    }
+});
+```
+```
+myModule.directive("strength", function() {
+    return {
+        require: '^superman',	// 这个属性标识， 这个指令是依赖superman指令的，写了这个属性后，link函数就可以写第4个参数表示父控制器
+        link: function(scope, element, attrs, supermanCtrl) {
+            supermanCtrl.addStrength();
+        }
+    }
+});
+myModule.directive("speed", function() {
+    return {
+        require: '^superman',
+        link: function(scope, element, attrs, supermanCtrl) {
+            supermanCtrl.addSpeed();
+        }
+    }
+});
+myModule.directive("light", function() {
+    return {
+        require: '^superman',
+        link: function(scope, element, attrs, supermanCtrl) {
+            supermanCtrl.addLight();
+        }
+    }
+});
+```
+
+指令中的独立作用域scope
+-----------------------------------------
+如果不用scope，多个地方使用相同指令的时候，任意一个指令变化将影响到所有其它指令。这时就需要设置scope选项如下这样：
+```
+myModule.directive("superman", function() {
+    return {
+        scope: {},	// 声明独立作用域
+    }
+});
+```
+
+指令中scope的绑定策略
+-----------------------------------------
+@	把当前属性作为字符串传递。还可以绑定来自外层scope的值，在属性值中插入{{}}即可
+=	与父scope中的属性进行双向绑定
+&	传递一个来自父scope的函数，稍后调用
+
+普通做法
+```
+<div ng-controller="MyCtrl">
+	<drink flavor="{{ctrlFlavor}}"></drink>
+</div>
+myModule.controller('MyCtrl',['$scope',function($scope){
+	$scope.ctrlFlaver="百威";
+}]);
+myModule.directive("drink", function() {
+    return {
+        restrict: 'AE',
+		template: "<div>{{flavor}}</div>",
+        link: function(scope, element, attrs) {
+            scope.flavor=attrs.flavor;
+        }
+    }
+});
+```
+
+通过scope绑定策略来做上面的功能
+myModule.directive("drink", function() {
+    return {
+        restrict: 'AE',
+		scope: {
+			flavor: '@'	//	@绑定传递的是字符串不是对象
+		},
+		template: "<div>{{flavor}}</div>"
+    }
+});
+
+=例子
+```
+<div ng-controller="MyCtrl">
+	<input type="text" ng-model="ctrlFlavor">
+	<drink flavor="{{ctrlFlavor}}"></drink>
+</div>
+myModule.controller('MyCtrl',['$scope',function($scope){
+	$scope.ctrlFlaver="百威";
+}]);
+myModule.directive("drink", function() {
+    return {
+        restrict: 'AE',
+		scope: {
+			flavor: '='	
+		},
+		template: '<input type="text" ng-model="flavor"/>'
+    }
+});
+```
+
+&例子
+```
+<div ng-controller="MyCtrl">	
+	<greeting greet="sayHello(name)"></greeting>
+	<greeting greet="sayHello(name)"></greeting>
+	<greeting greet="sayHello(name)"></greeting>
+</div>
+myModule.controller('MyCtrl',['$scope',function($scope){
+	$scope.sayHello=function(name){
+		alert("hello" + name);
+	}
+}]);
+myModule.directive("drink", function() {
+    return {
+        restrict: 'AE',
+		scope: {
+			flavor: '&'	
+		},
+		template: '<input type="text" ng-model="userName"/>' + 
+					'<button class="btn btn-default" ng-click="greet({name:userName})">Greeting</button>'
+    }
+});
+```
+
+AngularJS内置指令 -- 共63个，具体看文档
+-----------------------------------------
+form指令
+1. HTML原生form表单不能嵌套，而ng封装之后的form可以嵌套
+2. ng为form扩展了自动校验，防止重复提交等功能；
+3. ng对input远的type进行了扩展，一共提供了以下10中类型：
+text，number， url，email，radio，checkbox，hidden，button，submit，reset
+4. ng为表单内置4中CSS样式：
+ng-valid, ng-invalid, ng-pristine, ng-dirty
+5. 内置校验器：require，minlength，maxlength
+
+```
+<form name="myForm" ng-submit="save()" ng-controller="TestFormModule">
+	<input name="userName" type="text" ng-model="user.userName" required/>
+	<input name="password" type="password" ng-model="user.password" required/>
+	<input type="submit" ng-disabled="myForm.$invalid"/>
+</form>
+myModule.controller('TestFormModule',['$scope',function($scope){
+	$scope.user={
+		userName: 'xxxx',
+		password: ''
+	};
+	$scope.save=function(){
+		alert("保存数据");
+	}
+}]);
+```
+
+自定义指令
+-----------------------------------------
+1. expander指令，鼠标点击后显示和隐藏内容
+```
+<div ng-controller="MyCtrl">	
+	<expander class='expander' expander-title='title'>
+		{{text}}
+	</expander>
+</div>
+myModule.controller('MyCtrl',['$scope',function($scope){
+	$scope.title= '点击展开';
+	$scope.text= '这里是内部的内容';
+}]);
+myModule.directive("expander", function() {
+    return {
+        restrict: 'AE',
+		replace: true,
+		transclude: true,
+		scope: {
+			title: 'expanderTitle'
+		},
+		template: '<div>' 
+				+ '<div class="title" ng-click="toggle()">{{title}}</div>'
+				+ '<div class="body" ng-show="showMe" ng-transclude></div>'
+				+ '</div>',
+		link: function(scope, element, attrs) {
+			scope.showMe = false;
+			scope.toggle = function() {
+				scope.showMe = !scope.showMe;
+			}
+		}
+					
+    }
+});
+```
+
+这是一个简单的实现指令的例子， 开发应用的时候我们需要开发很多复杂的指令，也可以参考angularui这个第三方的库angular-ui.github.io
+
+使用angular的时候，很大的一部分工作在编写和使用指令

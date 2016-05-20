@@ -1,0 +1,44 @@
+#MVC
+
+##为什么需要MVC
+- 代码规模越来越大，切分职责
+- 为了复用
+- 后期维护方便：修改一块功能不影响其它功能
+MVC是手段，终极目标是模块化和复用
+
+##MVC推荐使用方式
+- 不要试图去复用controller，一个控制器一般只负责一小块视图
+- 不要再Controller中操作DOM，这不是控制器的职责，dom操作放在指令中，controller放业务逻辑
+- 不要在Controller里面做数据格式化，ng有很好用的表单控件
+- 不要在Controller里面做数据过滤操作，ng有$filter服务
+- 一般Controller不会互相调用，控制器之间的交互通过事件进行
+- 多个controller公用的部分放在service里
+- 数据模型一般绑在scope上面
+
+##scope的事件机制
+```
+<div ng-controller="EventController">
+	<button ng-click="$emit('MyEvent')">emit事件,向上和向下传播</div>
+	<button ng-click="$broadcast('MyEvent')">broadcast事件,向下传播</div>
+</div>
+function EventController($scope) {
+	$scope.count=0;
+	$scope.$on('MyEvent',function(){
+		$scope.count++;
+	});
+}
+```
+
+##神奇的$scope
+- $scope是一个POJO（Plain Old JavaScript Object）
+- $scope提供一些工具方法$watch()/$apply()
+- $scope是表达式的执行环境(或者叫作用域)
+- $scope是一个树形结构，与DOM标签平行
+- $scope对象会继承父$scope上的属性和方法
+- 每一个Angular应用只有一个根$scope对象(一般位于ng-app上)
+- $scope可以传播数据，类似DOM事件，可以向上也可以向下
+- $scope不仅是MVC基础，也是实现双向数据绑定的基础
+- 可以用angular.element($0).scope()进行调试,获取当前元素的scope
+
+##调试ng插件
+- firefox插件里搜angular，安装AngScope插件

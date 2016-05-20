@@ -1,0 +1,116 @@
+#Service与Privider
+
+不要复用controller，当多个controller有相同代码是，可以把这部分抽成service来用
+
+##使用$http服务
+```
+<div ng-controller="LoadDataCtrl">
+	<ul>
+		<li ng-repeat="user in users">{{user.name}}</li>
+	</ul>
+</div>
+var myModule=angular.module("MyModule",[]);
+myModule.controller('LoadDataCtrl',['$scope','$http',function($scope,$http){
+	$http({
+		method: 'GET',
+		url: 'data.json'
+	}).success(function(data, status, headers, config){
+		console.log("success...");
+		console.log(data);
+		$scope.users=data;
+	}).error(function(data, status, headers, config) {
+		console.log("error...");
+	});
+}]);
+```
+具体使用查看文档
+调试上面代码时放在web容器中，或者火狐支持ajax请求本地文件，使用chrome需要在打开chrome的快捷方式上加上参数来支持打开本地文件
+上面代码是把请求放在了controller中，下面介绍放在service中，来供其它controller调用
+```
+
+<div ng-controller="ServiceController">
+	<input type="text" ng-model="username" placeholder="请输入用户名"/>
+	<pre ng-show="username">{{users}}</pre>
+</div>
+var myModule=angular.module("MyModule",[]);
+myModule.factory('userListService',['$http',function($http){
+	var doRequest = function(username, path) {
+		return $http({
+			method: 'GET',
+			url: 'user.json'
+		});
+		return {
+			userList: function(username) {
+				return doRequest(username, 'userList');
+			}
+		}
+	}
+}]);
+// 自己定义的service不要以$开头，注入的时候把自己定义的service放在最后一个参数
+myModule.controller('ServiceController',['$scope','$timeout','userListService',function($scope,$timeout, userListService){
+	var timeout;
+	$scope.$watch('username', function(newUserName){ // $watch是ng在$scope上封装的方法，用于监控数据模型的变化
+		if(newUserName) {
+			if(timeout) {
+				$timeout.cancel(timeout);
+			}
+			timeout = $timeout(function(){	// $timeout后面设置了350ms，表示当输入350ms内输入框没有变化才调用函数
+				userListService.userList(newUserName)
+					.success(function(data, status){
+						$scope.users = data;
+					});
+			}, 350);
+		}
+	});
+}]);
+```
+
+##Service特性
+- Service都是单例的
+- Service有$injector负责实例化
+- Service在整个应用的生命周期中存在，可以用来共享数据， 推荐还是用$scope来共享数据
+- 在需要使用的地方利用依赖注入机制来注入Service
+- 自定义的Service需要写在内置Service后面
+- 内置Service的命名以$符号开头，自定义Service应该避免
+
+##Service,Provider, Factory
+
+```
+// provider源代码
+function provider(name, provider_){
+	if(isFunction(provider_)) {
+		provider_=providerInjector.instantiate(provider_);
+	}
+	if(!provider_.$get) {
+		throw Error('Provider' + name + ' muset define $get factory method');
+	}
+	return providerCache[name + providerSuffix] = provider_;
+}
+```
+
+- Service,Provider, Factory本质都是Provider, 内部都是调用provider函数的，只是写法(参数和参数的顺序)不一样
+- Provider模式是“策略模式” + “抽象工厂模式”的混合体
+
+##使用$filter服务
+- $filter是用来进行数据格式化的专用服务
+- AngularJS内置9个filter：
+currency，date，json，limitTo，lowercase，number，orderBy，uppercase
+- filter可以嵌套使用（用管道符号|分割）
+- filter是可以传递参数的
+- 用户可以定义自己的filter
+例子
+{{ 1304375948024 | date }}
+{{ 1304375948024 | date: "MM/dd/yyyy @ h:ma" }}
+{{ 1304375948024 | date: "yyyy-MM-dd hh:mm:ss" }}
+
+###自定义filter
+```
+myModule.filter('filter1',function(){
+	return function(item){
+		return item + "给内容后面加上东西";
+	}
+});
+{{'hello'| filter1}}
+```
+
+其它常用Service参考文档
