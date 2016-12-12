@@ -16,6 +16,7 @@ Lombok
 * [Asesome Java](https://github.com/liufeng0103/awesome-java) - GitHub上总结的跟Java相关的各类工具
 * [Spring JDBC最佳实践](http://www.open-open.com/lib/view/open1325676513734.html)
 * [各种教程例子](http://www.tutorialspoint.com/index.htm)
+* [JavaEE - JPA](http://blog.csdn.net/dm_vincent/article/details/52566964)
 
 ## AngularJS
 
